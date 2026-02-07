@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -9,6 +9,16 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const isEmailValid = useMemo(() => {
+    if (!formData.email) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+  }, [formData.email]);
+
+  const isPasswordValid = useMemo(() => formData.password?.length > 0, [formData.password]);
+  const isFormValid = isEmailValid && isPasswordValid;
 
   const handleChange = (e) => {
     setFormData({
@@ -81,102 +91,119 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="text-3xl font-bold text-center text-gray-900">
-            Sign in
-          </h2>
-          <p className="mt-2 text-center text-gray-600">
-            Access your healthcare portal
-          </p>
-        </div>
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your password"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-            <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot password?
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-blue-100 to-teal-100 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white border border-blue-100 rounded-2xl shadow-sm px-8 py-10">
           <div className="text-center">
-            <span className="text-sm text-gray-600">
-              Don't have an account?{' '}
+            <div className="mx-auto h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+              <span className="text-blue-600 font-semibold">SH</span>
+            </div>
+            <p className="text-sm text-gray-500">Secure Healthcare System</p>
+            <h2 className="text-3xl font-semibold text-gray-900 mt-2">Sign in</h2>
+            <p className="mt-2 text-gray-600">Use your Secure Healthcare System account</p>
+          </div>
+
+          <form className="space-y-6 mt-8" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm fade-in-soft">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-5">
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+                  placeholder=" "
+                  className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+                <label
+                  htmlFor="email"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                >
+                  Email or phone
+                </label>
+                {touched.email && !isEmailValid && (
+                  <p className="text-xs text-rose-600 mt-2 fade-in-soft">Enter a valid email address.</p>
+                )}
+                <div className="text-left mt-2">
+                  <button
+                    type="button"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                  >
+                    Forgot email?
+                  </button>
+                </div>
+              </div>
+
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+                  placeholder=" "
+                  className="peer block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+                <label
+                  htmlFor="password"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                >
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+                {touched.password && !isPasswordValid && (
+                  <p className="text-xs text-rose-600 mt-2 fade-in-soft">Password is required.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11a7 7 0 1114 0v3a4 4 0 01-4 4H9a4 4 0 01-4-4v-3z" />
+                </svg>
+                Secure login • Encrypted communication
+              </div>
+              <span className="text-blue-600 font-medium">Learn more</span>
+            </div>
+
+            <div className="flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => navigate('/register')}
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="text-sm font-medium text-blue-600 hover:text-blue-500"
               >
-                Sign up
+                Create account
               </button>
-            </span>
-          </div>
-        </form>
+              <button
+                type="submit"
+                disabled={loading || !isFormValid}
+                className="inline-flex items-center justify-center px-6 py-2.5 rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                {loading ? 'Signing in...' : 'Next'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

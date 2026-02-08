@@ -80,26 +80,30 @@ class AuthController {
         await user.save();
 
         // Log registration event
-        await AuditLog.createLog({
-          eventType: 'CREATE',
-          userId: user._id,
-          userRole: user.role,
-          resourceType: 'user',
-          resourceId: user._id,
-          action: 'USER_REGISTRATION',
-          description: `New user registered: ${user.email}`,
-          requestDetails: {
-            ipAddress: req.ip,
-            userAgent: req.get('User-Agent'),
-            endpoint: req.originalUrl,
-            method: req.method,
-            requestId: req.requestId || uuidv4()
-          },
-          compliance: {
-            gdprRelevant: true,
-            hipaaRelevant: true
-          }
-        });
+        try {
+          await AuditLog.createLog({
+            eventType: 'CREATE',
+            userId: user._id,
+            userRole: user.role,
+            resourceType: 'user',
+            resourceId: user._id,
+            action: 'USER_REGISTRATION',
+            description: `New user registered: ${user.email}`,
+            requestDetails: {
+              ipAddress: req.ip,
+              userAgent: req.get('User-Agent'),
+              endpoint: req.originalUrl,
+              method: req.method,
+              requestId: req.requestId || uuidv4()
+            },
+            compliance: {
+              gdprRelevant: true,
+              hipaaRelevant: true
+            }
+          });
+        } catch (logError) {
+          console.warn('Audit log failed during registration:', logError.message);
+        }
 
         // Return user data without sensitive information
         const userResponse = user.toJSON();
@@ -189,28 +193,32 @@ class AuthController {
         await user.incLoginAttempts();
 
         // Log failed login
-        await AuditLog.createLog({
-          eventType: 'LOGIN',
-          userId: user._id,
-          userRole: user.role,
-          resourceType: 'user',
-          resourceId: user._id,
-          action: 'LOGIN_FAILED',
-          description: `Failed login attempt for ${user.email}`,
-          requestDetails: {
-            ipAddress: req.ip,
-            userAgent: req.get('User-Agent'),
-            endpoint: req.originalUrl,
-            method: req.method,
-            requestId: req.requestId || uuidv4()
-          },
-          securityEvent: {
-            isSecurityEvent: true,
-            threatLevel: 'medium',
-            anomalyDetected: true,
-            anomalyDetails: 'Invalid password attempt'
-          }
-        });
+        try {
+          await AuditLog.createLog({
+            eventType: 'LOGIN',
+            userId: user._id,
+            userRole: user.role,
+            resourceType: 'user',
+            resourceId: user._id,
+            action: 'LOGIN_FAILED',
+            description: `Failed login attempt for ${user.email}`,
+            requestDetails: {
+              ipAddress: req.ip,
+              userAgent: req.get('User-Agent'),
+              endpoint: req.originalUrl,
+              method: req.method,
+              requestId: req.requestId || uuidv4()
+            },
+            securityEvent: {
+              isSecurityEvent: true,
+              threatLevel: 'medium',
+              anomalyDetected: true,
+              anomalyDetails: 'Invalid password attempt'
+            }
+          });
+        } catch (logError) {
+          console.warn('Audit log failed during failed login:', logError.message);
+        }
 
         return res.status(401).json({
           success: false,
@@ -234,22 +242,26 @@ class AuthController {
       const refreshToken = user.generateRefreshToken();
 
       // Log successful login
-      await AuditLog.createLog({
-        eventType: 'LOGIN',
-        userId: user._id,
-        userRole: user.role,
-        resourceType: 'user',
-        resourceId: user._id,
-        action: 'LOGIN_SUCCESS',
-        description: `User logged in: ${user.email}`,
-        requestDetails: {
-          ipAddress: req.ip,
-          userAgent: req.get('User-Agent'),
-          endpoint: req.originalUrl,
-          method: req.method,
-          requestId: req.requestId || uuidv4()
-        }
-      });
+      try {
+        await AuditLog.createLog({
+          eventType: 'LOGIN',
+          userId: user._id,
+          userRole: user.role,
+          resourceType: 'user',
+          resourceId: user._id,
+          action: 'LOGIN_SUCCESS',
+          description: `User logged in: ${user.email}`,
+          requestDetails: {
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+            endpoint: req.originalUrl,
+            method: req.method,
+            requestId: req.requestId || uuidv4()
+          }
+        });
+      } catch (logError) {
+        console.warn('Audit log failed during login success:', logError.message);
+      }
 
       // Return user data without sensitive information
       const userResponse = user.toJSON();

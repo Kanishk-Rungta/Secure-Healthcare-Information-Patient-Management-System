@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const crypto = require('crypto');
 const cors = require('cors');
 const compression = require('compression');
 const morgan = require('morgan');
@@ -21,6 +22,36 @@ const consentRoutes = require('./routes/consent');
  */
 
 const app = express();
+
+// Ensure JWT secrets are configured (dev fallback to avoid auth failures)
+const ensureJwtSecrets = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!process.env.JWT_SECRET) {
+    if (isProduction) {
+      throw new Error('JWT_SECRET is not configured');
+    }
+    process.env.JWT_SECRET = 'dev_jwt_secret_change_me';
+    console.warn('⚠️  JWT_SECRET missing. Using development fallback secret.');
+  }
+
+  if (!process.env.JWT_REFRESH_SECRET) {
+    if (isProduction) {
+      throw new Error('JWT_REFRESH_SECRET is not configured');
+    }
+    process.env.JWT_REFRESH_SECRET = 'dev_jwt_refresh_secret_change_me';
+    console.warn('⚠️  JWT_REFRESH_SECRET missing. Using development fallback secret.');
+  }
+
+  // Optional: derive a stable fallback if either secret is still missing
+  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    const seed = crypto.randomBytes(32).toString('hex');
+    process.env.JWT_SECRET = process.env.JWT_SECRET || `dev_jwt_${seed}`;
+    process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || `dev_refresh_${seed}`;
+  }
+};
+
+ensureJwtSecrets();
 
 // Trust proxy for accurate IP addresses
 app.set('trust proxy', 1);

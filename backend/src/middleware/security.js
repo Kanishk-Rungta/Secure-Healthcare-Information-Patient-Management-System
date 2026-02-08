@@ -22,29 +22,33 @@ const createRateLimit = (windowMs, max, message) => {
     standardHeaders: true,
     legacyHeaders: false,
     handler: async (req, res) => {
-      // Log rate limit violation
-      await AuditLog.createLog({
-        eventType: 'SYSTEM_ERROR',
-        userId: req.user?._id,
-        userRole: req.user?.role || 'anonymous',
-        resourceType: 'system',
-        resourceId: null, // Use null for rate limit events
-        action: 'RATE_LIMIT_VIOLATION',
-        description: `Rate limit exceeded for ${req.ip} on ${req.path}`,
-        requestDetails: {
-          ipAddress: req.ip,
-          userAgent: req.get('User-Agent'),
-          endpoint: req.originalUrl,
-          method: req.method,
-          requestId: req.requestId || uuidv4()
-        },
-        securityEvent: {
-          isSecurityEvent: true,
-          threatLevel: 'medium',
-          anomalyDetected: true,
-          anomalyDetails: 'Rate limit threshold exceeded'
-        }
-      });
+      // Log rate limit violation (non-fatal)
+      try {
+        await AuditLog.createLog({
+          eventType: 'SYSTEM_ERROR',
+          userId: req.user?._id,
+          userRole: req.user?.role || 'anonymous',
+          resourceType: 'system',
+          resourceId: null, // Use null for rate limit events
+          action: 'RATE_LIMIT_VIOLATION',
+          description: `Rate limit exceeded for ${req.ip} on ${req.path}`,
+          requestDetails: {
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+            endpoint: req.originalUrl,
+            method: req.method,
+            requestId: req.requestId || uuidv4()
+          },
+          securityEvent: {
+            isSecurityEvent: true,
+            threatLevel: 'medium',
+            anomalyDetected: true,
+            anomalyDetails: 'Rate limit threshold exceeded'
+          }
+        });
+      } catch (logError) {
+        console.warn('Failed to log rate limit event:', logError.message);
+      }
 
       res.status(429).json({
         success: false,
@@ -265,10 +269,12 @@ const corsConfig = {
     if (!origin) return callback(null, true);
 
     const allowedOrigins = process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',')
+      ? process.env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['http://localhost:3000'];
 
-    if (allowedOrigins.includes(origin)) {
+    const isLocalDevOrigin = /^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && isLocalDevOrigin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -282,7 +288,8 @@ const corsConfig = {
     'Content-Type',
     'Accept',
     'Authorization',
-    'X-Request-ID'
+    'X-Request-ID',
+    'X-Silent-Errors'
   ],
   exposedHeaders: ['X-Total-Count', 'X-Request-ID']
 };
@@ -348,6 +355,8 @@ const requestLogger = async (req, res, next) => {
           isSecurityEvent: res.statusCode >= 500,
           threatLevel: res.statusCode >= 500 ? 'medium' : 'low'
         }
+      }).catch((logError) => {
+        console.warn('Failed to log HTTP error event:', logError.message);
       });
     }
 

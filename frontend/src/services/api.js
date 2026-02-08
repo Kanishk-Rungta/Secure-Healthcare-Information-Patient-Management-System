@@ -48,11 +48,14 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const isSilent = Boolean(originalRequest?.headers?.['X-Silent-Errors']);
 
     // Handle network errors
     if (!error.response) {
       console.error('Network error:', error);
-      toast.error('Network error. Please check your connection.');
+      if (!isSilent) {
+        toast.error('Network error. Please check your connection.');
+      }
       return Promise.reject(error);
     }
 
@@ -103,30 +106,42 @@ apiClient.interceptors.response.use(
 
     // Handle 403 Forbidden - insufficient permissions
     if (status === 403) {
-      toast.error(data.message || 'Access denied. Insufficient permissions.');
+      if (!isSilent) {
+        toast.error(data.message || 'Access denied. Insufficient permissions.');
+      }
     }
 
     // Handle 429 Too Many Requests - rate limiting
     if (status === 429) {
-      toast.error(data.message || 'Too many requests. Please try again later.');
+      if (!isSilent) {
+        toast.error(data.message || 'Too many requests. Please try again later.');
+      }
     }
 
     // Handle 500+ server errors
     if (status >= 500) {
-      toast.error(data.message || 'Server error. Please try again later.');
+      if (!isSilent) {
+        toast.error(data.message || 'Server error. Please try again later.');
+      }
     }
 
     // Handle 404 Not Found
     if (status === 404) {
-      toast.error(data.message || 'Resource not found.');
+      if (!isSilent) {
+        toast.error(data.message || 'Resource not found.');
+      }
     }
 
     // Handle 400 Bad Request
     if (status === 400) {
       if (data.errors && Array.isArray(data.errors)) {
-        data.errors.forEach(err => toast.error(err));
+        if (!isSilent) {
+          data.errors.forEach(err => toast.error(err));
+        }
       } else {
-        toast.error(data.message || 'Invalid request.');
+        if (!isSilent) {
+          toast.error(data.message || 'Invalid request.');
+        }
       }
     }
 
@@ -141,12 +156,12 @@ const generateRequestId = () => {
 
 // API service functions
 export const authAPI = {
-  login: (credentials) => apiClient.post('/auth/login', credentials),
-  register: (userData) => apiClient.post('/auth/register', userData),
-  logout: () => apiClient.post('/auth/logout'),
-  refreshToken: (tokens) => apiClient.post('/auth/refresh-token', tokens),
-  changePassword: (passwordData) => apiClient.post('/auth/change-password', passwordData),
-  getProfile: () => apiClient.get('/auth/profile'),
+  login: (credentials, config = {}) => apiClient.post('/auth/login', credentials, config),
+  register: (userData, config = {}) => apiClient.post('/auth/register', userData, config),
+  logout: (config = {}) => apiClient.post('/auth/logout', null, config),
+  refreshToken: (tokens, config = {}) => apiClient.post('/auth/refresh-token', tokens, config),
+  changePassword: (passwordData, config = {}) => apiClient.post('/auth/change-password', passwordData, config),
+  getProfile: (config = {}) => apiClient.get('/auth/profile', config),
 };
 
 export const patientAPI = {

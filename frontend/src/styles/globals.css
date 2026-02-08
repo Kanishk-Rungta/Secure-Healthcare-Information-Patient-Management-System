@@ -11,6 +11,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.brand-fade {
+  background: linear-gradient(90deg, #1f2937, #2563eb, #1f2937);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brandShimmer 5s ease-in-out infinite;
+}
+
+@keyframes brandShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

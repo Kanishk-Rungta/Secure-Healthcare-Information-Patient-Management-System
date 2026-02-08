@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,6 +21,25 @@ const Login = () => {
   const isPasswordValid = useMemo(() => formData.password?.length > 0, [formData.password]);
   const isFormValid = isEmailValid && isPasswordValid;
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const runWithRetry = async (fn, retries = 2) => {
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err;
+        const isNetworkError = !err?.response;
+        if (!isNetworkError || attempt === retries) {
+          throw err;
+        }
+        await sleep(700 * (attempt + 1));
+      }
+    }
+    throw lastError;
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -32,26 +52,40 @@ const Login = () => {
     setError('');
     setLoading(true);
 
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setError('You appear to be offline. Please check your connection.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await runWithRetry(() => authAPI.login(
+        {
           email: formData.email,
           password: formData.password
-        })
-      });
+        },
+        {
+          headers: { 'X-Silent-Errors': 'true' }
+        }
+      ));
 
-      const data = await response.json();
+      if (response?.success) {
+        const user = response.data?.user;
+        const tokens = response.data?.tokens || {};
 
-      if (response.ok) {
-        localStorage.setItem('accessToken', data.data.accessToken);
-        localStorage.setItem('refreshToken', data.data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(data.data.user));
+        if (tokens.accessToken) {
+          localStorage.setItem('accessToken', tokens.accessToken);
+        }
+        if (tokens.refreshToken) {
+          localStorage.setItem('refreshToken', tokens.refreshToken);
+        }
+        if (user) {
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('authUser', JSON.stringify(user));
+        }
+        localStorage.setItem('authTokens', JSON.stringify(tokens));
 
-        const userRole = data.data.user.role;
+        const userRole = user?.role;
         switch (userRole) {
           case 'patient':
           case 'PATIENT':
@@ -81,10 +115,13 @@ const Login = () => {
             navigate('/dashboard');
         }
       } else {
-        setError(data.message || 'Login failed');
+        setError(response?.message || 'Login failed');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      const message = err?.response?.data?.message
+        || (err?.message?.includes('timeout') ? 'Request timed out. Please try again.' : null)
+        || 'Unable to reach the server. Please check the API URL and backend status.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -126,7 +163,7 @@ const Login = () => {
                 />
                 <label
                   htmlFor="email"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                 >
                   Email or phone
                 </label>
@@ -158,7 +195,7 @@ const Login = () => {
                 />
                 <label
                   htmlFor="password"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                 >
                   Password
                 </label>

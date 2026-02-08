@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -44,6 +45,17 @@ const Register = () => {
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
+  const passwordChecks = useMemo(() => {
+    const value = formData.password || '';
+    return {
+      minLength: value.length >= 8,
+      uppercase: /[A-Z]/.test(value),
+      lowercase: /[a-z]/.test(value),
+      number: /\d/.test(value),
+      special: /[^A-Za-z0-9]/.test(value)
+    };
+  }, [formData.password]);
+  const isPasswordStrong = Object.values(passwordChecks).every(Boolean);
   const passwordsMatch = formData.password && formData.password === formData.confirmPassword;
   const hasRequiredStaffFields = !isMedicalStaff || (
     formData.licenseNumber && formData.department && (formData.role.toLowerCase() !== 'doctor' || formData.specialization)
@@ -55,9 +67,29 @@ const Register = () => {
     formData.password &&
     formData.confirmPassword &&
     passwordsMatch &&
+    isPasswordStrong &&
     formData.dataProcessingConsent &&
     (formData.role !== 'PATIENT' || formData.dateOfBirth) &&
     hasRequiredStaffFields;
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const runWithRetry = async (fn, retries = 2) => {
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err;
+        const isNetworkError = !err?.response;
+        if (!isNetworkError || attempt === retries) {
+          throw err;
+        }
+        await sleep(700 * (attempt + 1));
+      }
+    }
+    throw lastError;
+  };
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -73,6 +105,11 @@ const Register = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      return;
+    }
+
+    if (!isPasswordStrong) {
+      setError('Password must be at least 8 characters and include upper, lower, number, and special characters.');
       return;
     }
 
@@ -93,6 +130,12 @@ const Register = () => {
     }
 
     setLoading(true);
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setError('You appear to be offline. Please check your connection.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const requestData = {
@@ -123,23 +166,27 @@ const Register = () => {
         }
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData)
-      });
+      const response = await runWithRetry(() => authAPI.register(
+        requestData,
+        { headers: { 'X-Silent-Errors': 'true' } }
+      ));
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response?.success) {
         navigate('/login');
       } else {
-        setError(data.message || 'Registration failed');
+        const message = response?.message || 'Registration failed';
+        const errors = Array.isArray(response?.errors) ? response.errors.join(' ') : '';
+        setError(errors ? `${message} ${errors}` : message);
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      const apiMessage = err?.response?.data?.message;
+      const apiErrors = Array.isArray(err?.response?.data?.errors)
+        ? err.response.data.errors.join(' ')
+        : null;
+      const message = apiMessage
+        ? `${apiMessage}${apiErrors ? ` ${apiErrors}` : ''}`
+        : (err?.message?.includes('timeout') ? 'Request timed out. Please try again.' : 'Unable to reach the server. Please check the API URL and backend status.');
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -184,7 +231,7 @@ const Register = () => {
                   />
                   <label
                     htmlFor="firstName"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                   >
                     First name
                   </label>
@@ -202,7 +249,7 @@ const Register = () => {
                   />
                   <label
                     htmlFor="lastName"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                   >
                     Last name
                   </label>
@@ -223,7 +270,7 @@ const Register = () => {
                 />
                 <label
                   htmlFor="email"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                 >
                   Email address
                 </label>
@@ -242,7 +289,7 @@ const Register = () => {
                 />
                 <label
                   htmlFor="phone"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                 >
                   Phone number (optional)
                 </label>
@@ -263,12 +310,13 @@ const Register = () => {
                   />
                   <label
                     htmlFor="dateOfBirth"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                   >
                     Date of birth {formData.role === 'PATIENT' && <span className="text-rose-500">*</span>}
                   </label>
                   <p className="text-xs text-gray-500 mt-2">Used to verify patient identity.</p>
                 </div>
+
                 <div className="relative">
                   <select
                     id="role"
@@ -310,7 +358,7 @@ const Register = () => {
                     />
                     <label
                       htmlFor="licenseNumber"
-                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                     >
                       License number <span className="text-rose-500">*</span>
                     </label>
@@ -330,7 +378,7 @@ const Register = () => {
                     />
                     <label
                       htmlFor="department"
-                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                     >
                       Department <span className="text-rose-500">*</span>
                     </label>
@@ -351,7 +399,7 @@ const Register = () => {
                       />
                       <label
                         htmlFor="specialization"
-                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                       >
                         Specialization <span className="text-rose-500">*</span>
                       </label>
@@ -382,7 +430,7 @@ const Register = () => {
                   />
                   <label
                     htmlFor="password"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                   >
                     Password
                   </label>
@@ -412,7 +460,7 @@ const Register = () => {
                   />
                   <label
                     htmlFor="confirmPassword"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                   >
                     Confirm password
                   </label>

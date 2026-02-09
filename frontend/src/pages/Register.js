@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
@@ -242,7 +243,7 @@ const Register = () => {
         ? err.response.data.errors.join(' | ')
         : err?.response?.data?.errors;
       let message = 'Unable to reach the server. Please check your connection and try again.';
-      
+
       if (apiErrors) {
         message = apiErrors;
       } else if (apiMessage) {
@@ -250,7 +251,7 @@ const Register = () => {
       } else if (err?.message?.includes('timeout')) {
         message = 'Request timed out. Please try again.';
       }
-      
+
       setError(message);
       setLoading(false);
     }
@@ -295,339 +296,339 @@ const Register = () => {
             )}
 
             {!success && (
-            <>
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Personal Information</h3>
-                <span className="text-xs text-gray-500">All fields required unless marked optional.</span>
-              </div>
+              <>
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Personal Information</h3>
+                    <span className="text-xs text-gray-500">All fields required unless marked optional.</span>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="relative">
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                  <label
-                    htmlFor="firstName"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                  >
-                    First name
-                  </label>
-                </div>
-                <div className="relative">
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                  <label
-                    htmlFor="lastName"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                  >
-                    Last name
-                  </label>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="relative">
+                      <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        placeholder=" "
+                        className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      />
+                      <label
+                        htmlFor="firstName"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      >
+                        First name
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        placeholder=" "
+                        className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      />
+                      <label
+                        htmlFor="lastName"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      >
+                        Last name
+                      </label>
+                    </div>
+                  </div>
 
-              <div className="relative">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder=" "
-                  className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
-                <label
-                  htmlFor="email"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                >
-                  Email address
-                </label>
-                <p className="text-xs text-gray-500 mt-2">We’ll send verification and account updates here.</p>
-              </div>
+                  <div className="relative">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder=" "
+                      className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    />
+                    <label
+                      htmlFor="email"
+                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    >
+                      Email address
+                    </label>
+                    <p className="text-xs text-gray-500 mt-2">We’ll send verification and account updates here.</p>
+                  </div>
 
-              <div className="relative">
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder=" "
-                  className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
-                <label
-                  htmlFor="phone"
-                  className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                >
-                  Phone number (optional)
-                </label>
-                <p className="text-xs text-gray-500 mt-2">Used for important security alerts.</p>
-              </div>
+                  <div className="relative">
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder=" "
+                      className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    />
+                    <label
+                      htmlFor="phone"
+                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                    >
+                      Phone number (optional)
+                    </label>
+                    <p className="text-xs text-gray-500 mt-2">Used for important security alerts.</p>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="relative">
-                  <input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    required={formData.role === 'PATIENT'}
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                  <label
-                    htmlFor="dateOfBirth"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                  >
-                    Date of birth {formData.role === 'PATIENT' && <span className="text-rose-500">*</span>}
-                  </label>
-                  <p className="text-xs text-gray-500 mt-2">Used to verify patient identity.</p>
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="relative">
+                      <input
+                        id="dateOfBirth"
+                        name="dateOfBirth"
+                        type="date"
+                        required={formData.role === 'PATIENT'}
+                        value={formData.dateOfBirth}
+                        onChange={handleChange}
+                        placeholder=" "
+                        className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      />
+                      <label
+                        htmlFor="dateOfBirth"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      >
+                        Date of birth {formData.role === 'PATIENT' && <span className="text-rose-500">*</span>}
+                      </label>
+                      <p className="text-xs text-gray-500 mt-2">Used to verify patient identity.</p>
+                    </div>
 
-                <div className="relative">
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className="peer block w-full px-4 py-3 border border-gray-300 bg-white rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  >
-                    <option value="PATIENT">Patient</option>
-                    <option value="DOCTOR">Doctor</option>
-                    <option value="RECEPTIONIST">Receptionist</option>
-                  </select>
-                  <label
-                    htmlFor="role"
-                    className="absolute left-4 -top-2 text-xs text-blue-600 bg-white px-1"
-                  >
-                    Role
-                  </label>
-                  <p className="text-xs text-gray-500 mt-2">Select your primary role for access.</p>
-                </div>
-              </div>
+                    <div className="relative">
+                      <select
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        className="peer block w-full px-4 py-3 border border-gray-300 bg-white rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      >
+                        <option value="PATIENT">Patient</option>
+                        <option value="DOCTOR">Doctor</option>
+                        <option value="RECEPTIONIST">Receptionist</option>
+                      </select>
+                      <label
+                        htmlFor="role"
+                        className="absolute left-4 -top-2 text-xs text-blue-600 bg-white px-1"
+                      >
+                        Role
+                      </label>
+                      <p className="text-xs text-gray-500 mt-2">Select your primary role for access.</p>
+                    </div>
+                  </div>
 
-              {isMedicalStaff && (
-                <div className="space-y-4 border-t border-blue-100 pt-6">
-                  <h4 className="text-sm font-semibold text-gray-900">Professional Information</h4>
+                  {isMedicalStaff && (
+                    <div className="space-y-4 border-t border-blue-100 pt-6">
+                      <h4 className="text-sm font-semibold text-gray-900">Professional Information</h4>
 
-                  <>
-                    {formData.role.toLowerCase() === 'receptionist' ? (
-                      <div className="relative">
-                        <input
-                          id="receptionistId"
-                          name="receptionistId"
-                          type="text"
-                          required
-                          value={formData.receptionistId}
-                          onChange={handleChange}
-                          placeholder=" "
-                          className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                        />
-                        <label
-                          htmlFor="receptionistId"
-                          className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                        >
-                          Receptionist ID <span className="text-rose-500">*</span>
-                        </label>
-                        <p className="text-xs text-gray-500 mt-2">Your internal receptionist identifier.</p>
-                      </div>
-                    ) : (
                       <>
-                        <div className="relative">
-                          <input
-                            id="licenseNumber"
-                            name="licenseNumber"
-                            type="text"
-                            required
-                            value={formData.licenseNumber}
-                            onChange={handleChange}
-                            placeholder=" "
-                            className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                          />
-                          <label
-                            htmlFor="licenseNumber"
-                            className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                          >
-                            License number <span className="text-rose-500">*</span>
-                          </label>
-                          <p className="text-xs text-gray-500 mt-2">Required to verify your credentials.</p>
-                        </div>
+                        {formData.role.toLowerCase() === 'receptionist' ? (
+                          <div className="relative">
+                            <input
+                              id="receptionistId"
+                              name="receptionistId"
+                              type="text"
+                              required
+                              value={formData.receptionistId}
+                              onChange={handleChange}
+                              placeholder=" "
+                              className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            />
+                            <label
+                              htmlFor="receptionistId"
+                              className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                            >
+                              Receptionist ID <span className="text-rose-500">*</span>
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">Your internal receptionist identifier.</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="relative">
+                              <input
+                                id="licenseNumber"
+                                name="licenseNumber"
+                                type="text"
+                                required
+                                value={formData.licenseNumber}
+                                onChange={handleChange}
+                                placeholder=" "
+                                className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                              />
+                              <label
+                                htmlFor="licenseNumber"
+                                className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                              >
+                                License number <span className="text-rose-500">*</span>
+                              </label>
+                              <p className="text-xs text-gray-500 mt-2">Required to verify your credentials.</p>
+                            </div>
 
-                        <div className="relative">
-                          <input
-                            id="department"
-                            name="department"
-                            type="text"
-                            required
-                            value={formData.department}
-                            onChange={handleChange}
-                            placeholder=" "
-                            className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                          />
-                          <label
-                            htmlFor="department"
-                            className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                          >
-                            Department <span className="text-rose-500">*</span>
-                          </label>
-                          <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Emergency, Laboratory.</p>
-                        </div>
+                            <div className="relative">
+                              <input
+                                id="department"
+                                name="department"
+                                type="text"
+                                required
+                                value={formData.department}
+                                onChange={handleChange}
+                                placeholder=" "
+                                className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                              />
+                              <label
+                                htmlFor="department"
+                                className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                              >
+                                Department <span className="text-rose-500">*</span>
+                              </label>
+                              <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Emergency, Laboratory.</p>
+                            </div>
+                          </>
+                        )}
+
+                        {formData.role.toLowerCase() === 'doctor' && (
+                          <div className="relative">
+                            <input
+                              id="specialization"
+                              name="specialization"
+                              type="text"
+                              required
+                              value={formData.specialization}
+                              onChange={handleChange}
+                              placeholder=" "
+                              className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            />
+                            <label
+                              htmlFor="specialization"
+                              className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                            >
+                              Specialization <span className="text-rose-500">*</span>
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Pediatrics.</p>
+                          </div>
+                        )}
                       </>
-                    )}
+                    </div>
+                  )}
+                </section>
 
-                    {formData.role.toLowerCase() === 'doctor' && (
-                      <div className="relative">
-                        <input
-                          id="specialization"
-                          name="specialization"
-                          type="text"
-                          required
-                          value={formData.specialization}
-                          onChange={handleChange}
-                          placeholder=" "
-                          className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                        />
-                        <label
-                          htmlFor="specialization"
-                          className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                        >
-                          Specialization <span className="text-rose-500">*</span>
-                        </label>
-                        <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Pediatrics.</p>
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Account Security</h3>
+                    <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label} password</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder=" "
+                        className="peer block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      />
+                      <label
+                        htmlFor="password"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      >
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                      <p className="text-xs text-gray-500 mt-2">Use 8+ characters with mix of letters and numbers.</p>
+                      <div className="mt-2 h-1.5 rounded-full bg-gray-100">
+                        <div className={`h-1.5 rounded-full ${passwordStrength.bar} ${passwordStrength.width}`} />
                       </div>
-                    )}
-                  </>
-                </div>
-              )}
-            </section>
+                    </div>
 
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Account Security</h3>
-                <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label} password</span>
-              </div>
+                    <div className="relative">
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder=" "
+                        className="peer block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      />
+                      <label
+                        htmlFor="confirmPassword"
+                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                      >
+                        Confirm password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      >
+                        {showConfirmPassword ? 'Hide' : 'Show'}
+                      </button>
+                      <p className={`text-xs mt-2 ${passwordsMatch ? 'text-emerald-600' : 'text-gray-500'}`}>
+                        {passwordsMatch ? 'Passwords match' : 'Re-enter the same password.'}
+                      </p>
+                    </div>
+                  </div>
+                </section>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="peer block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                  <label
-                    htmlFor="password"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                  >
-                    Password
-                  </label>
+                <section className="space-y-4">
+                  <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Consent & Terms</h3>
+                  <div className="flex items-start gap-3">
+                    <input
+                      id="dataProcessingConsent"
+                      name="dataProcessingConsent"
+                      type="checkbox"
+                      checked={formData.dataProcessingConsent}
+                      onChange={handleChange}
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="dataProcessingConsent" className="text-sm text-gray-700">
+                      I agree to the processing of my personal data for healthcare purposes.
+                      <span className="block text-xs text-gray-500 mt-1">Required to create your account.</span>
+                    </label>
+                  </div>
+                </section>
+
+                <div className="space-y-4">
                   <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    type="submit"
+                    disabled={loading}
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"
                   >
-                    {showPassword ? 'Hide' : 'Show'}
+                    {loading ? 'Creating account...' : 'Create account'}
                   </button>
-                  <p className="text-xs text-gray-500 mt-2">Use 8+ characters with mix of letters and numbers.</p>
-                  <div className="mt-2 h-1.5 rounded-full bg-gray-100">
-                    <div className={`h-1.5 rounded-full ${passwordStrength.bar} ${passwordStrength.width}`} />
+
+                  <div className="text-center">
+                    <span className="text-sm text-gray-600">
+                      Already have an account?{' '}
+                      <button
+                        type="button"
+                        onClick={() => navigate('/login')}
+                        className="font-medium text-blue-600 hover:text-blue-500"
+                      >
+                        Sign in
+                      </button>
+                    </span>
                   </div>
                 </div>
-
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="peer block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                  <label
-                    htmlFor="confirmPassword"
-                    className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                  >
-                    Confirm password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                  >
-                    {showConfirmPassword ? 'Hide' : 'Show'}
-                  </button>
-                  <p className={`text-xs mt-2 ${passwordsMatch ? 'text-emerald-600' : 'text-gray-500'}`}>
-                    {passwordsMatch ? 'Passwords match' : 'Re-enter the same password.'}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-4">
-              <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Consent & Terms</h3>
-              <div className="flex items-start gap-3">
-                <input
-                  id="dataProcessingConsent"
-                  name="dataProcessingConsent"
-                  type="checkbox"
-                  checked={formData.dataProcessingConsent}
-                  onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="dataProcessingConsent" className="text-sm text-gray-700">
-                  I agree to the processing of my personal data for healthcare purposes.
-                  <span className="block text-xs text-gray-500 mt-1">Required to create your account.</span>
-                </label>
-              </div>
-            </section>
-
-            <div className="space-y-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                {loading ? 'Creating account...' : 'Create account'}
-              </button>
-
-              <div className="text-center">
-                <span className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Sign in
-                  </button>
-                </span>
-              </div>
-            </div>
-            </>
+              </>
             )}
           </form>
         </div>

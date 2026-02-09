@@ -49,7 +49,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -95,9 +94,9 @@ const Login = () => {
           case 'DOCTOR':
             navigate('/doctor');
             break;
-          case 'nurse':
-          case 'NURSE':
-            navigate('/nurse');
+          case 'receptionist':
+          case 'RECEPTIONIST':
+            navigate('/receptionist');
             break;
           case 'lab_technician':
           case 'LAB_TECHNICIAN':
@@ -115,14 +114,22 @@ const Login = () => {
             navigate('/dashboard');
         }
       } else {
-        setError(response?.message || 'Login failed');
+        const errorMessage = response?.message || response?.errors?.[0] || 'Login failed. Please check your credentials.';
+        setError(errorMessage);
+        setLoading(false);
       }
     } catch (err) {
-      const message = err?.response?.data?.message
-        || (err?.message?.includes('timeout') ? 'Request timed out. Please try again.' : null)
-        || 'Unable to reach the server. Please check the API URL and backend status.';
-      setError(message);
-    } finally {
+      let errorMessage = 'Unable to reach the server. Please check the API URL and backend status.';
+      
+      if (err?.response?.status === 401 || err?.response?.status === 400) {
+        errorMessage = err?.response?.data?.message || 'Invalid email or password. Please try again.';
+      } else if (err?.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (err?.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        errorMessage = err.response.data.errors[0];
+      }
+      
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -170,14 +177,6 @@ const Login = () => {
                 {touched.email && !isEmailValid && (
                   <p className="text-xs text-rose-600 mt-2 fade-in-soft">Enter a valid email address.</p>
                 )}
-                <div className="text-left mt-2">
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Forgot email?
-                  </button>
-                </div>
               </div>
 
               <div className="relative">
@@ -212,15 +211,12 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center gap-2">
-                <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11a7 7 0 1114 0v3a4 4 0 01-4 4H9a4 4 0 01-4-4v-3z" />
-                </svg>
-                Secure login • Encrypted communication
-              </div>
-              <span className="text-blue-600 font-medium">Learn more</span>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11a7 7 0 1114 0v3a4 4 0 01-4 4H9a4 4 0 01-4-4v-3z" />
+              </svg>
+              Secure login • Encrypted communication
             </div>
 
             <div className="flex items-center justify-between">

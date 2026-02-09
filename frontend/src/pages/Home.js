@@ -133,9 +133,9 @@ const Home = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
                   </svg>
                 </span>
-                Nurse
+                Receptionist
               </h3>
-              <p className="text-gray-600 text-sm">Monitor patients, administer care, update records</p>
+              <p className="text-gray-600 text-sm">Manage front-desk tasks, patient intake, appointments</p>
             </div>
             <div className="border border-amber-200 rounded-lg p-6 bg-amber-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-amber-100/80">
               <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">

@@ -157,7 +157,7 @@ const emergencyAccess = async (req, res, next) => {
     }
     
     // Only certain roles can request emergency access
-    const emergencyRoles = ['doctor', 'nurse', 'administrator'];
+    const emergencyRoles = ['doctor', 'receptionist', 'administrator'];
     if (!emergencyRoles.includes(userRole)) {
       return res.status(403).json({
         success: false,

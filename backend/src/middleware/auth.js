@@ -190,7 +190,7 @@ const hasPermission = (permission) => {
           'view_lab_results',
           'manage_appointments'
         ],
-        nurse: [
+        receptionist: [
           'view_patient_records',
           'update_vitals',
           'manage_medications',

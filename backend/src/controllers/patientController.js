@@ -239,7 +239,7 @@ class PatientController {
       const recordData = req.body;
 
       // Validate provider role
-      const allowedRoles = ['doctor', 'nurse', 'lab_technician', 'pharmacist'];
+      const allowedRoles = ['doctor', 'receptionist', 'lab_technician', 'pharmacist'];
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({
           success: false,
@@ -390,7 +390,7 @@ class PatientController {
       const visitData = req.body;
 
       // Validate provider role
-      const allowedRoles = ['doctor', 'nurse'];
+      const allowedRoles = ['doctor', 'receptionist'];
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({
           success: false,
@@ -534,7 +534,7 @@ class PatientController {
       const userRole = req.user.role;
 
       // Validate role
-      const allowedRoles = ['doctor', 'nurse', 'administrator'];
+      const allowedRoles = ['doctor', 'receptionist', 'administrator'];
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({
           success: false,

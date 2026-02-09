@@ -16,7 +16,7 @@ router.use(authenticate);
 
 // Search patients (medical staff only)
 router.get('/search',
-  authorize('doctor', 'nurse', 'administrator'),
+  authorize('doctor', 'receptionist', 'administrator'),
   sanitizeInput,
   PatientController.searchPatients
 );
@@ -32,7 +32,7 @@ router.get('/:patientId/profile',
 
 // Update patient demographics
 router.put('/:patientId/demographics',
-  authorize('patient', 'doctor', 'nurse', 'administrator'),
+  authorize('patient', 'doctor', 'receptionist', 'administrator'),
   sanitizeInput,
   validateJSON,
   checkConsent,
@@ -47,7 +47,7 @@ router.get('/:patientId/medical-records',
 
 // Create medical record (medical staff only)
 router.post('/:patientId/medical-records',
-  authorize('doctor', 'nurse', 'lab_technician', 'pharmacist'),
+  authorize('doctor', 'receptionist', 'lab_technician', 'pharmacist'),
   sanitizeInput,
   validateJSON,
   checkConsent,
@@ -62,7 +62,7 @@ router.get('/:patientId/visits',
 
 // Add new visit (medical staff only)
 router.post('/:patientId/visits',
-  authorize('doctor', 'nurse'),
+  authorize('doctor', 'receptionist'),
   sanitizeInput,
   validateJSON,
   checkConsent,
@@ -77,7 +77,7 @@ router.get('/:patientId/medications',
 
 // Emergency access override
 router.post('/:patientId/emergency-access',
-  authorize('doctor', 'nurse', 'administrator'),
+  authorize('doctor', 'receptionist', 'administrator'),
   rateLimits.emergencyAccess,
   sanitizeInput,
   validateJSON,

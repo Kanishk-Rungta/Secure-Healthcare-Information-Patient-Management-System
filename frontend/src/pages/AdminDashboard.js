@@ -38,7 +38,7 @@ const AdminDashboard = () => {
           </div>
           <ul className="divide-y divide-slate-100">
             {[
-              'Role updated for Nurse Olivia Carter',
+              'Role updated for Receptionist Olivia Carter',
               'New department created: Cardiology Wing B',
               'Access review completed for Lab Team',
             ].map((item) => (

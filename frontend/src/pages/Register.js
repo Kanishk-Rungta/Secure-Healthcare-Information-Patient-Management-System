@@ -16,14 +16,16 @@ const Register = () => {
     dataProcessingConsent: false,
     licenseNumber: '',
     specialization: '',
-    department: ''
+    department: '',
+    receptionistId: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const medicalStaffRoles = ['doctor', 'nurse', 'lab_technician', 'pharmacist'];
+  const medicalStaffRoles = ['doctor', 'receptionist'];
   const isMedicalStaff = medicalStaffRoles.includes(formData.role.toLowerCase());
 
   const getPasswordStrength = (value) => {
@@ -57,9 +59,17 @@ const Register = () => {
   }, [formData.password]);
   const isPasswordStrong = Object.values(passwordChecks).every(Boolean);
   const passwordsMatch = formData.password && formData.password === formData.confirmPassword;
-  const hasRequiredStaffFields = !isMedicalStaff || (
-    formData.licenseNumber && formData.department && (formData.role.toLowerCase() !== 'doctor' || formData.specialization)
-  );
+  const hasRequiredStaffFields = (() => {
+    if (!isMedicalStaff) return true;
+    const role = formData.role.toLowerCase();
+    if (role === 'doctor') {
+      return formData.licenseNumber && formData.department && formData.specialization;
+    }
+    if (role === 'receptionist') {
+      return !!formData.receptionistId;
+    }
+    return true;
+  })();
   const isFormValid =
     formData.firstName &&
     formData.lastName &&
@@ -103,29 +113,70 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
+    // Validate all required fields
+    if (!formData.firstName) {
+      setError('First name is required');
+      return;
+    }
+    if (!formData.lastName) {
+      setError('Last name is required');
+      return;
+    }
+    if (!formData.email) {
+      setError('Email address is required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!formData.password) {
+      setError('Password is required');
+      return;
+    }
+    if (!formData.confirmPassword) {
+      setError('Please confirm your password');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (!isPasswordStrong) {
-      setError('Password must be at least 8 characters and include upper, lower, number, and special characters.');
+      setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special characters');
       return;
     }
-
+    if (formData.role === 'PATIENT' && !formData.dateOfBirth) {
+      setError('Date of birth is required for patients');
+      return;
+    }
     if (!formData.dataProcessingConsent) {
       setError('You must agree to data processing consent');
       return;
     }
 
-    if (medicalStaffRoles.includes(formData.role.toLowerCase())) {
-      if (!formData.licenseNumber || !formData.department) {
-        setError('License number and department are required for medical staff');
-        return;
+    // Validate staff-specific fields
+    const roleLower = formData.role.toLowerCase();
+    if (medicalStaffRoles.includes(roleLower)) {
+      if (roleLower === 'doctor') {
+        if (!formData.licenseNumber) {
+          setError('License number is required for doctors');
+          return;
+        }
+        if (!formData.department) {
+          setError('Department is required for doctors');
+          return;
+        }
+        if (!formData.specialization) {
+          setError('Specialization is required for doctors');
+          return;
+        }
       }
-      if (formData.role.toLowerCase() === 'doctor' && !formData.specialization) {
-        setError('Specialization is required for doctors');
-        return;
+      if (roleLower === 'receptionist') {
+        if (!formData.receptionistId) {
+          setError('Receptionist ID is required for receptionists');
+          return;
+        }
       }
     }
 
@@ -145,8 +196,9 @@ const Register = () => {
         profile: {
           firstName: formData.firstName,
           lastName: formData.lastName,
-          dateOfBirth: formData.dateOfBirth,
-          phone: formData.phone
+          dateOfBirth: formData.role === 'PATIENT' ? formData.dateOfBirth : '',
+          phone: formData.phone,
+          professionalInfo: {}
         },
         privacy: {
           dataProcessingConsent: formData.dataProcessingConsent,
@@ -155,14 +207,18 @@ const Register = () => {
       };
 
       // Add professional info for medical staff
-      const medicalStaffRoles = ['doctor', 'nurse', 'lab_technician', 'pharmacist'];
       if (medicalStaffRoles.includes(formData.role.toLowerCase())) {
-        requestData.profile.professionalInfo = {
-          licenseNumber: formData.licenseNumber,
-          department: formData.department
-        };
-        if (formData.role.toLowerCase() === 'doctor') {
-          requestData.profile.professionalInfo.specialization = formData.specialization;
+        const roleLower = formData.role.toLowerCase();
+        if (roleLower === 'doctor') {
+          requestData.profile.professionalInfo = {
+            licenseNumber: formData.licenseNumber,
+            department: formData.department,
+            specialization: formData.specialization
+          };
+        } else if (roleLower === 'receptionist') {
+          requestData.profile.professionalInfo = {
+            receptionistId: formData.receptionistId
+          };
         }
       }
 
@@ -172,22 +228,30 @@ const Register = () => {
       ));
 
       if (response?.success) {
-        navigate('/login');
+        setSuccess(true);
+        setError('');
       } else {
         const message = response?.message || 'Registration failed';
         const errors = Array.isArray(response?.errors) ? response.errors.join(' ') : '';
         setError(errors ? `${message} ${errors}` : message);
+        setLoading(false);
       }
     } catch (err) {
       const apiMessage = err?.response?.data?.message;
       const apiErrors = Array.isArray(err?.response?.data?.errors)
-        ? err.response.data.errors.join(' ')
-        : null;
-      const message = apiMessage
-        ? `${apiMessage}${apiErrors ? ` ${apiErrors}` : ''}`
-        : (err?.message?.includes('timeout') ? 'Request timed out. Please try again.' : 'Unable to reach the server. Please check the API URL and backend status.');
+        ? err.response.data.errors.join(' | ')
+        : err?.response?.data?.errors;
+      let message = 'Unable to reach the server. Please check your connection and try again.';
+      
+      if (apiErrors) {
+        message = apiErrors;
+      } else if (apiMessage) {
+        message = apiMessage;
+      } else if (err?.message?.includes('timeout')) {
+        message = 'Request timed out. Please try again.';
+      }
+      
       setError(message);
-    } finally {
       setLoading(false);
     }
   };
@@ -211,6 +275,27 @@ const Register = () => {
               </div>
             )}
 
+            {success && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                <div className="mb-4 flex justify-center">
+                  <svg className="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-green-900 mb-2">Account Created Successfully!</h3>
+                <p className="text-green-700 mb-4">Your account has been registered. Please log in with your credentials to access the platform.</p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition transform hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  Go to Login
+                </button>
+              </div>
+            )}
+
+            {!success && (
+            <>
             <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">Personal Information</h3>
@@ -327,9 +412,7 @@ const Register = () => {
                   >
                     <option value="PATIENT">Patient</option>
                     <option value="DOCTOR">Doctor</option>
-                    <option value="NURSE">Nurse</option>
-                    <option value="LAB_TECHNICIAN">Lab Technician</option>
-                    <option value="PHARMACIST">Pharmacist</option>
+                    <option value="RECEPTIONIST">Receptionist</option>
                   </select>
                   <label
                     htmlFor="role"
@@ -345,67 +428,93 @@ const Register = () => {
                 <div className="space-y-4 border-t border-blue-100 pt-6">
                   <h4 className="text-sm font-semibold text-gray-900">Professional Information</h4>
 
-                  <div className="relative">
-                    <input
-                      id="licenseNumber"
-                      name="licenseNumber"
-                      type="text"
-                      required
-                      value={formData.licenseNumber}
-                      onChange={handleChange}
-                      placeholder=" "
-                      className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    />
-                    <label
-                      htmlFor="licenseNumber"
-                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                    >
-                      License number <span className="text-rose-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-2">Required to verify your credentials.</p>
-                  </div>
+                  <>
+                    {formData.role.toLowerCase() === 'receptionist' ? (
+                      <div className="relative">
+                        <input
+                          id="receptionistId"
+                          name="receptionistId"
+                          type="text"
+                          required
+                          value={formData.receptionistId}
+                          onChange={handleChange}
+                          placeholder=" "
+                          className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        />
+                        <label
+                          htmlFor="receptionistId"
+                          className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                        >
+                          Receptionist ID <span className="text-rose-500">*</span>
+                        </label>
+                        <p className="text-xs text-gray-500 mt-2">Your internal receptionist identifier.</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="relative">
+                          <input
+                            id="licenseNumber"
+                            name="licenseNumber"
+                            type="text"
+                            required
+                            value={formData.licenseNumber}
+                            onChange={handleChange}
+                            placeholder=" "
+                            className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                          />
+                          <label
+                            htmlFor="licenseNumber"
+                            className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                          >
+                            License number <span className="text-rose-500">*</span>
+                          </label>
+                          <p className="text-xs text-gray-500 mt-2">Required to verify your credentials.</p>
+                        </div>
 
-                  <div className="relative">
-                    <input
-                      id="department"
-                      name="department"
-                      type="text"
-                      required
-                      value={formData.department}
-                      onChange={handleChange}
-                      placeholder=" "
-                      className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    />
-                    <label
-                      htmlFor="department"
-                      className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                    >
-                      Department <span className="text-rose-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Emergency, Laboratory.</p>
-                  </div>
+                        <div className="relative">
+                          <input
+                            id="department"
+                            name="department"
+                            type="text"
+                            required
+                            value={formData.department}
+                            onChange={handleChange}
+                            placeholder=" "
+                            className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                          />
+                          <label
+                            htmlFor="department"
+                            className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                          >
+                            Department <span className="text-rose-500">*</span>
+                          </label>
+                          <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Emergency, Laboratory.</p>
+                        </div>
+                      </>
+                    )}
 
-                  {formData.role.toLowerCase() === 'doctor' && (
-                    <div className="relative">
-                      <input
-                        id="specialization"
-                        name="specialization"
-                        type="text"
-                        required
-                        value={formData.specialization}
-                        onChange={handleChange}
-                        placeholder=" "
-                        className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                      />
-                      <label
-                        htmlFor="specialization"
-                        className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
-                      >
-                        Specialization <span className="text-rose-500">*</span>
-                      </label>
-                      <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Pediatrics.</p>
-                    </div>
-                  )}
+                    {formData.role.toLowerCase() === 'doctor' && (
+                      <div className="relative">
+                        <input
+                          id="specialization"
+                          name="specialization"
+                          type="text"
+                          required
+                          value={formData.specialization}
+                          onChange={handleChange}
+                          placeholder=" "
+                          className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        />
+                        <label
+                          htmlFor="specialization"
+                          className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                        >
+                          Specialization <span className="text-rose-500">*</span>
+                        </label>
+                        <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Pediatrics.</p>
+                      </div>
+                    )}
+                  </>
                 </div>
               )}
             </section>
@@ -499,7 +608,7 @@ const Register = () => {
             <div className="space-y-4">
               <button
                 type="submit"
-                disabled={loading || !isFormValid}
+                disabled={loading}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"
               >
                 {loading ? 'Creating account...' : 'Create account'}
@@ -518,6 +627,8 @@ const Register = () => {
                 </span>
               </div>
             </div>
+            </>
+            )}
           </form>
         </div>
 

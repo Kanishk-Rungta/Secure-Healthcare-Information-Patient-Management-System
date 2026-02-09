@@ -13,7 +13,7 @@ import Dashboard from './pages/Dashboard';
 // Role-specific pages
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
-import NurseDashboard from './pages/nurse/NurseDashboard';
+import ReceptionistDashboard from './pages/nurse/NurseDashboard';
 import LabTechnicianDashboard from './pages/lab_technician/LabTechnicianDashboard';
 import PharmacistDashboard from './pages/pharmacist/PharmacistDashboard';
 import AdministratorDashboard from './pages/administrator/AdministratorDashboard';
@@ -58,7 +58,7 @@ function App() {
           {/* Role-specific Dashboards */}
           <Route path="/patient" element={<Layout><PatientDashboard /></Layout>} />
           <Route path="/doctor" element={<Layout><DoctorDashboard /></Layout>} />
-          <Route path="/nurse" element={<Layout><NurseDashboard /></Layout>} />
+          <Route path="/receptionist" element={<Layout><ReceptionistDashboard /></Layout>} />
           <Route path="/lab" element={<Layout><LabTechnicianDashboard /></Layout>} />
           <Route path="/pharmacy" element={<Layout><PharmacistDashboard /></Layout>} />
           <Route path="/admin" element={<Layout><AdministratorDashboard /></Layout>} />

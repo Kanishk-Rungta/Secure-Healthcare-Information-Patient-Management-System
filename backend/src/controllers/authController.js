@@ -121,8 +121,12 @@ class AuthController {
         });
       } catch (validationError) {
         // Handle Mongoose validation errors
+        console.error('User validation error:', validationError.message);
         if (validationError.name === 'ValidationError') {
-          const errors = Object.values(validationError.errors).map(err => err.message);
+          const errors = Object.values(validationError.errors).map(err => {
+            console.error(`Validation error on ${err.path}: ${err.message}`);
+            return err.message;
+          });
           return res.status(400).json({
             success: false,
             message: 'Validation failed',

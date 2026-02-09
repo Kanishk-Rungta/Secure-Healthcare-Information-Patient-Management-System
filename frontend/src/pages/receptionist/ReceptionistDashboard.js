@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const NurseDashboard = () => {
+const ReceptionistDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -367,4 +367,4 @@ const NurseDashboard = () => {
   );
 };
 
-export default NurseDashboard;
+export default ReceptionistDashboard;

@@ -10,7 +10,7 @@ import { useAuth } from './AuthContext';
 const ROLES = {
   PATIENT: 'patient',
   DOCTOR: 'doctor',
-  NURSE: 'nurse',
+  RECEPTIONIST: 'receptionist',
   LAB_TECHNICIAN: 'lab_technician',
   PHARMACIST: 'pharmacist',
   ADMINISTRATOR: 'administrator',
@@ -35,7 +35,7 @@ const ROLE_PERMISSIONS = {
     'create_medical_records',
     'emergency_access',
   ],
-  [ROLES.NURSE]: [
+  [ROLES.RECEPTIONIST]: [
     'view_patient_records',
     'update_vitals',
     'manage_medications',
@@ -71,7 +71,7 @@ const ROLE_PERMISSIONS = {
 const ROLE_DISPLAY_NAMES = {
   [ROLES.PATIENT]: 'Patient',
   [ROLES.DOCTOR]: 'Doctor',
-  [ROLES.NURSE]: 'Nurse',
+  [ROLES.RECEPTIONIST]: 'Receptionist',
   [ROLES.LAB_TECHNICIAN]: 'Lab Technician',
   [ROLES.PHARMACIST]: 'Pharmacist',
   [ROLES.ADMINISTRATOR]: 'Administrator',
@@ -128,7 +128,7 @@ export const RoleProvider = ({ children }) => {
     const roleRoutes = {
       [ROLES.PATIENT]: '/patient',
       [ROLES.DOCTOR]: '/doctor',
-      [ROLES.NURSE]: '/nurse',
+      [ROLES.RECEPTIONIST]: '/receptionist',
       [ROLES.LAB_TECHNICIAN]: '/lab',
       [ROLES.PHARMACIST]: '/pharmacy',
       [ROLES.ADMINISTRATOR]: '/admin',
@@ -154,12 +154,12 @@ export const RoleProvider = ({ children }) => {
         { path: '/doctor/prescriptions', label: 'Prescriptions', icon: 'pill' },
         { path: '/doctor/lab-results', label: 'Lab Results', icon: 'flask' }
       ],
-      [ROLES.NURSE]: [
-        { path: '/nurse', label: 'Dashboard', icon: 'home' },
-        { path: '/nurse/patients', label: 'Patients', icon: 'users' },
-        { path: '/nurse/vitals', label: 'Vitals', icon: 'heart' },
-        { path: '/nurse/medications', label: 'Medications', icon: 'pill' },
-        { path: '/nurse/appointments', label: 'Appointments', icon: 'calendar' }
+      [ROLES.RECEPTIONIST]: [
+        { path: '/receptionist', label: 'Dashboard', icon: 'home' },
+        { path: '/receptionist/patients', label: 'Patients', icon: 'users' },
+        { path: '/receptionist/vitals', label: 'Vitals', icon: 'heart' },
+        { path: '/receptionist/medications', label: 'Medications', icon: 'pill' },
+        { path: '/receptionist/appointments', label: 'Appointments', icon: 'calendar' }
       ],
       [ROLES.LAB_TECHNICIAN]: [
         { path: '/lab', label: 'Dashboard', icon: 'home' },
@@ -195,7 +195,7 @@ export const RoleProvider = ({ children }) => {
     }
 
     // Medical staff and admins can access patient data with proper consent
-    return [ROLES.DOCTOR, ROLES.NURSE, ROLES.LAB_TECHNICIAN, ROLES.PHARMACIST, ROLES.ADMINISTRATOR].includes(currentRole);
+    return [ROLES.DOCTOR, ROLES.RECEPTIONIST, ROLES.LAB_TECHNICIAN, ROLES.PHARMACIST, ROLES.ADMINISTRATOR].includes(currentRole);
   };
 
   // Check if user can perform specific action on patient data

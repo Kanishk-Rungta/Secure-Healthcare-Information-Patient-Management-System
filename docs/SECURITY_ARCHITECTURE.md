@@ -64,7 +64,7 @@ This document outlines the comprehensive security architecture of the Secure Hea
 const ROLES = {
   PATIENT: 'patient',
   DOCTOR: 'doctor', 
-  NURSE: 'nurse',
+  RECEPTIONIST: 'receptionist',
   LAB_TECHNICIAN: 'lab_technician',
   PHARMACIST: 'pharmacist',
   ADMINISTRATOR: 'administrator'

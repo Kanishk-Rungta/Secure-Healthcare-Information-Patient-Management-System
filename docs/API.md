@@ -35,7 +35,7 @@ Register a new user account.
 {
   "email": "user@example.com",
   "password": "SecurePass123!",
-  "role": "patient|doctor|nurse|lab_technician|pharmacist|administrator",
+  "role": "patient|doctor|receptionist|lab_technician|pharmacist|administrator",
   "profile": {
     "firstName": "John",
     "lastName": "Doe",

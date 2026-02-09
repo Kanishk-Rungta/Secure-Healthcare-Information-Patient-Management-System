@@ -23,7 +23,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const medicalStaffRoles = ['doctor', 'nurse', 'lab_technician', 'pharmacist'];
+  const medicalStaffRoles = ['doctor', 'receptionist', 'lab_technician', 'pharmacist'];
   const isMedicalStaff = medicalStaffRoles.includes(formData.role.toLowerCase());
 
   const getPasswordStrength = (value) => {
@@ -155,7 +155,7 @@ const Register = () => {
       };
 
       // Add professional info for medical staff
-      const medicalStaffRoles = ['doctor', 'nurse', 'lab_technician', 'pharmacist'];
+      const medicalStaffRoles = ['doctor', 'receptionist', 'lab_technician', 'pharmacist'];
       if (medicalStaffRoles.includes(formData.role.toLowerCase())) {
         requestData.profile.professionalInfo = {
           licenseNumber: formData.licenseNumber,
@@ -327,7 +327,7 @@ const Register = () => {
                   >
                     <option value="PATIENT">Patient</option>
                     <option value="DOCTOR">Doctor</option>
-                    <option value="NURSE">Nurse</option>
+                    <option value="RECEPTIONIST">Receptionist</option>
                     <option value="LAB_TECHNICIAN">Lab Technician</option>
                     <option value="PHARMACIST">Pharmacist</option>
                   </select>

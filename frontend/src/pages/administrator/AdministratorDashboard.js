@@ -249,7 +249,7 @@ const AdministratorDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="h-3 w-3 bg-purple-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Nurses</span>
+                      <span className="text-sm text-gray-600">Receptionists</span>
                     </div>
                     <span className="text-sm font-medium text-gray-900">89</span>
                   </div>

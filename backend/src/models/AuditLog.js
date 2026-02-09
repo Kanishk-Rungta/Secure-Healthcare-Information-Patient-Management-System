@@ -38,7 +38,7 @@ const auditLogSchema = new mongoose.Schema({
 
   userRole: {
     type: String,
-    enum: ['patient', 'doctor', 'nurse', 'lab_technician', 'pharmacist', 'administrator', 'anonymous'],
+    enum: ['patient', 'doctor', 'receptionist', 'lab_technician', 'pharmacist', 'administrator', 'anonymous'],
     required: false // Make optional for system events
   },
 

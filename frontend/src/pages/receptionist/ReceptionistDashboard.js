@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const NurseDashboard = () => {
+const ReceptionistDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,7 @@ const NurseDashboard = () => {
   const fetchComplaints = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/nurse/complaints', {
+      const response = await fetch('http://localhost:5000/api/receptionist/complaints', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -98,7 +98,7 @@ const NurseDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/nurse/register-complaint', {
+      const response = await fetch('http://localhost:5000/api/receptionist/register-complaint', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -109,7 +109,7 @@ const NurseDashboard = () => {
           assignedDoctorId: selectedDoctor,
           description: complaintDescription,
           priority: complaintPriority,
-          nurseId: user._id
+          receptionistId: user._id
         })
       });
 
@@ -154,14 +154,14 @@ const NurseDashboard = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <span className="text-xl font-semibold text-gray-900">
-                Nurse Portal
+                Receptionist Portal
               </span>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <div className="text-sm leading-4 text-right">
                   <p className="text-gray-900 font-medium">{user?.profile?.firstName} {user?.profile?.lastName}</p>
-                  <p className="text-gray-500 text-xs">Nurse</p>
+                  <p className="text-gray-500 text-xs">Receptionist</p>
                 </div>
                 <div className="w-9 h-9 bg-teal-100 rounded-full flex items-center justify-center">
                   <span className="text-teal-700 font-semibold text-sm">
@@ -367,4 +367,4 @@ const NurseDashboard = () => {
   );
 };
 
-export default NurseDashboard;
+export default ReceptionistDashboard;

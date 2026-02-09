@@ -24,7 +24,7 @@ This system implements a **security-first, layered architecture** with:
 
 1. **Patient** - Data owner with consent controls
 2. **Doctor** - Diagnosis and prescription management
-3. **Nurse** - Patient care coordination
+3. **Receptionist** - Patient intake coordination
 4. **Lab Technician** - Laboratory results management
 5. **Pharmacist** - Prescription fulfillment
 6. **Administrator** - System oversight and audit review

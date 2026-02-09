@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   // User role for RBAC
   role: {
     type: String,
-    enum: ['patient', 'doctor', 'nurse', 'lab_technician', 'pharmacist', 'administrator'],
+    enum: ['patient', 'doctor', 'receptionist', 'lab_technician', 'pharmacist', 'administrator'],
     required: [true, 'Role is required']
   },
   
@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
       licenseNumber: {
         type: String,
         required: function() { 
-          return ['doctor', 'nurse', 'lab_technician', 'pharmacist'].includes(this.role);
+          return ['doctor', 'receptionist', 'lab_technician', 'pharmacist'].includes(this.role);
         },
         select: false // Sensitive information
       },
@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema({
       department: {
         type: String,
         required: function() { 
-          return ['doctor', 'nurse', 'lab_technician', 'pharmacist'].includes(this.role);
+          return ['doctor', 'receptionist', 'lab_technician', 'pharmacist'].includes(this.role);
         }
       }
     }

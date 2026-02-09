@@ -40,7 +40,7 @@ const medicalRecordSchema = new mongoose.Schema({
   
   providerRole: {
     type: String,
-    enum: ['doctor', 'nurse', 'lab_technician', 'pharmacist'],
+    enum: ['doctor', 'receptionist', 'lab_technician', 'pharmacist'],
     required: true
   },
   

@@ -95,9 +95,9 @@ const Login = () => {
           case 'DOCTOR':
             navigate('/doctor');
             break;
-          case 'nurse':
-          case 'NURSE':
-            navigate('/nurse');
+          case 'receptionist':
+          case 'RECEPTIONIST':
+            navigate('/receptionist');
             break;
           case 'lab_technician':
           case 'LAB_TECHNICIAN':

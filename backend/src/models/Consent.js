@@ -24,7 +24,7 @@ const consentSchema = new mongoose.Schema({
   // Recipient role for permission checking
   recipientRole: {
     type: String,
-    enum: ['doctor', 'nurse', 'lab_technician', 'pharmacist', 'administrator'],
+    enum: ['doctor', 'receptionist', 'lab_technician', 'pharmacist', 'administrator'],
     required: true
   },
   

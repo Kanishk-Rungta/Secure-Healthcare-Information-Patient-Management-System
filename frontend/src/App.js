@@ -13,7 +13,7 @@ import Dashboard from './pages/Dashboard';
 // Role-specific pages
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
-import ReceptionistDashboard from './pages/nurse/NurseDashboard';
+import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard';
 import LabTechnicianDashboard from './pages/lab_technician/LabTechnicianDashboard';
 import PharmacistDashboard from './pages/pharmacist/PharmacistDashboard';
 import AdministratorDashboard from './pages/administrator/AdministratorDashboard';

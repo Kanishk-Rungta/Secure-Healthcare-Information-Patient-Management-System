@@ -58,7 +58,7 @@ const DoctorDashboard = () => {
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/patients/search?role=patient', {
+      const response = await fetch(`http://localhost:5000/api/assignments/doctor/${user._id}/patients`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ const DoctorDashboard = () => {
         setPatients(data.data || []);
       }
     } catch (error) {
-      console.error('Error fetching patients:', error);
+      console.error('Error fetching assigned patients:', error);
     }
   };
 

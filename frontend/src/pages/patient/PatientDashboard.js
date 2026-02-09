@@ -7,7 +7,7 @@ const PatientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [consents, setConsents] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+  const [assignedDoctors, setAssignedDoctors] = useState([]);
   const [activeTab, setActiveTab] = useState('records');
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -28,7 +28,7 @@ const PatientDashboard = () => {
     if (user) {
       fetchMedicalRecords();
       fetchConsents();
-      fetchDoctors();
+      fetchAssignedDoctors();
     }
   }, [user]);
 
@@ -70,10 +70,10 @@ const PatientDashboard = () => {
     }
   };
 
-  const fetchDoctors = async () => {
+  const fetchAssignedDoctors = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/patients/search?role=doctor', {
+      const response = await fetch(`http://localhost:5000/api/assignments/patient/${user._id}/doctors`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -82,12 +82,18 @@ const PatientDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setDoctors(data.data || []);
+        const doctors = data.data.map(assignment => ({
+          _id: assignment.doctorId._id,
+          profile: assignment.doctorId.profile,
+          email: assignment.doctorId.email
+        }));
+        setAssignedDoctors(doctors);
       }
     } catch (error) {
-      console.error('Error fetching doctors:', error);
+      console.error('Error fetching assigned doctors:', error);
     }
   };
+
 
   const grantConsent = async () => {
     if (!selectedDoctor) {
@@ -232,6 +238,15 @@ const PatientDashboard = () => {
                 Medical Records
               </button>
               <button
+                onClick={() => setActiveTab('doctors')}
+                className={`py-3 px-1 border-b-2 text-sm ${activeTab === 'doctors'
+                    ? 'border-sky-700 text-sky-900 font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-sky-300'
+                  }`}
+              >
+                My Doctors
+              </button>
+              <button
                 onClick={() => setActiveTab('consent')}
                 className={`py-3 px-1 border-b-2 text-sm ${activeTab === 'consent'
                     ? 'border-sky-700 text-sky-900 font-semibold'
@@ -291,6 +306,66 @@ const PatientDashboard = () => {
               </div>
             </div>
           )}
+
+        {/* My Doctors Tab */}
+        {activeTab === 'doctors' && (
+          <div>
+            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
+                  Your Assigned Doctors
+                </h3>
+                {assignedDoctors.length === 0 ? (
+                  <div className="text-center py-14">
+                    <div className="text-slate-400 mb-4">
+                      <svg className="mx-auto h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 8.048M7.5 19H5a2 2 0 01-2-2v-1a6 6 0 0112 0v1a2 2 0 01-2 2h-5.5M9 9h6m-6 4h6m2 5H7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No doctors assigned yet</h3>
+                    <p className="text-slate-600">The reception team will assign a doctor to you soon. You can grant them access to your medical records once assigned.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {assignedDoctors.map((doctor) => (
+                      <div key={doctor._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="text-lg font-medium text-slate-900">
+                              Dr. {doctor.profile?.firstName} {doctor.profile?.lastName}
+                            </h4>
+                            {doctor.profile?.professionalInfo?.specialization && (
+                              <p className="text-sm text-slate-600 mt-1">
+                                Specialization: {doctor.profile.professionalInfo.specialization}
+                              </p>
+                            )}
+                            {doctor.profile?.professionalInfo?.department && (
+                              <p className="text-sm text-slate-600">
+                                Department: {doctor.profile.professionalInfo.department}
+                              </p>
+                            )}
+                            <p className="text-xs text-slate-500 mt-2">
+                              Email: {doctor.email}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedDoctor(doctor._id);
+                              setShowConsentModal(true);
+                            }}
+                            className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
+                          >
+                            Grant Access
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Access Control Tab */}
         {activeTab === 'consent' && (
@@ -379,9 +454,9 @@ const PatientDashboard = () => {
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                     >
                       <option value="">Choose a doctor...</option>
-                      {doctors.map((doctor) => (
+                      {assignedDoctors.map((doctor) => (
                         <option key={doctor._id} value={doctor._id}>
-                          Dr. {doctor.profile?.firstName} {doctor.profile?.lastName} - {doctor.profile?.professionalInfo?.specialization || 'General'}
+                          Dr. {doctor.profile?.firstName} {doctor.profile?.lastName} {doctor.profile?.professionalInfo?.specialization ? `- ${doctor.profile.professionalInfo.specialization}` : ''}
                         </option>
                       ))}
                     </select>

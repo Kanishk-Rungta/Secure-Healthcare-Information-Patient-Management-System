@@ -15,6 +15,7 @@ const { helmetConfig, corsConfig, requestId, securityHeaders, requestLogger, mon
 const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const consentRoutes = require('./routes/consent');
+const assignmentRoutes = require('./routes/assignments');
 
 /**
  * Main Application - Secure healthcare system entry point
@@ -93,6 +94,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/consent', consentRoutes);
+app.use('/api/assignments', assignmentRoutes);
 
 // API documentation endpoint
 app.get('/api', (req, res) => {

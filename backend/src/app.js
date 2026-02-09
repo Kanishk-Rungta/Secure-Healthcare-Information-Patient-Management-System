@@ -16,6 +16,7 @@ const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const consentRoutes = require('./routes/consent');
 const assignmentRoutes = require('./routes/assignments');
+const receptionistRoutes = require('./routes/receptionist');
 
 /**
  * Main Application - Secure healthcare system entry point
@@ -95,6 +96,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/consent', consentRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/receptionist', receptionistRoutes);
 
 // API documentation endpoint
 app.get('/api', (req, res) => {
@@ -130,6 +132,12 @@ app.get('/api', (req, res) => {
         'PUT /api/consent/:consentId': 'Update consent',
         'GET /api/consent/check': 'Check consent status',
         'GET /api/consent/patients/:patientId/stats': 'Get consent statistics'
+      },
+      receptionist: {
+        'POST /api/receptionist/register-complaint': 'Register a new complaint',
+        'GET /api/receptionist/complaints': 'Get all complaints (filtered by role)',
+        'GET /api/receptionist/complaints/:complaintId': 'Get specific complaint',
+        'PUT /api/receptionist/complaints/:complaintId/status': 'Update complaint status'
       }
     },
     security: {

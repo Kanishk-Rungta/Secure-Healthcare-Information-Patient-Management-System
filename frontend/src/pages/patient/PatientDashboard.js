@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const PatientDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [patientId, setPatientId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [consents, setConsents] = useState([]);
@@ -26,16 +27,39 @@ const PatientDashboard = () => {
 
   useEffect(() => {
     if (user) {
-      fetchMedicalRecords();
-      fetchConsents();
-      fetchAssignedDoctors();
+      getPatientId();
     }
   }, [user]);
 
-  const fetchMedicalRecords = async () => {
+  const getPatientId = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${user._id}/medical-records`, {
+      const response = await fetch(`http://localhost:5000/api/assignments/users/patient?limit=100`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const currentPatient = data.data.find(p => p.userId._id === user._id || p.userId === user._id);
+        if (currentPatient) {
+          setPatientId(currentPatient._id || currentPatient.userId._id);
+          fetchMedicalRecords(currentPatient._id || currentPatient.userId._id);
+          fetchConsents(currentPatient._id || currentPatient.userId._id);
+          fetchAssignedDoctors(currentPatient._id || currentPatient.userId._id);
+        }
+      }
+    } catch (error) {
+      console.error('Error getting patient ID:', error);
+    }
+  };
+
+  const fetchMedicalRecords = async (pId) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:5000/api/patients/${pId || patientId}/medical-records`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -54,26 +78,42 @@ const PatientDashboard = () => {
   const fetchConsents = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/consent/patient/${user._id}`, {
+      // Need to get patient ID first
+      const patientResponse = await fetch(`http://localhost:5000/api/assignments/users/patient?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setConsents(data.data || []);
+      if (patientResponse.ok) {
+        const patientData = await patientResponse.json();
+        const currentPatient = patientData.data.find(p => p.userId._id === user._id || p.userId === user._id);
+        
+        if (currentPatient) {
+          const patientId = currentPatient._id || currentPatient.userId._id;
+          const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setConsents(data.data || []);
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching consents:', error);
     }
   };
 
-  const fetchAssignedDoctors = async () => {
+  const fetchAssignedDoctors = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/patient/${user._id}/doctors`, {
+      const response = await fetch(`http://localhost:5000/api/assignments/patient/${pId || patientId}/doctors`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -103,7 +143,9 @@ const PatientDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/consent/grant', {
+
+      // Now grant consent using the correct endpoint
+      const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

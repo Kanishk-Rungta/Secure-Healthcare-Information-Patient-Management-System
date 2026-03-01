@@ -75,6 +75,12 @@ router.get('/:patientId/medications',
   PatientController.getMedications
 );
 
+// Get patient lab reports (with consent validation)
+router.get('/:patientId/lab-reports',
+  checkConsent,
+  PatientController.getLabReports
+);
+
 // Emergency access override
 router.post('/:patientId/emergency-access',
   authorize('doctor', 'receptionist', 'administrator'),

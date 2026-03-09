@@ -186,6 +186,21 @@ export const consentAPI = {
   getStats: (patientId) => apiClient.get(`/consent/patients/${patientId}/stats`),
 };
 
+export const receptionistAPI = {
+  registerComplaint: (data) => apiClient.post('/receptionist/register-complaint', data),
+  getComplaints: (params) => apiClient.get('/receptionist/complaints', { params }),
+  getComplaintById: (complaintId) => apiClient.get(`/receptionist/complaints/${complaintId}`),
+  updateComplaintStatus: (complaintId, data) => apiClient.put(`/receptionist/complaints/${complaintId}/status`, data),
+};
+
+export const assignmentAPI = {
+  getAllAssignments: (params) => apiClient.get('/assignments', { params }),
+  getUsersByRole: (role, params) => apiClient.get(`/assignments/users/${role}`, { params }),
+  assignDoctor: (data) => apiClient.post('/assignments', data),
+  getPatientDoctors: (patientId) => apiClient.get(`/assignments/patient/${patientId}/doctors`),
+  getDoctorPatients: (doctorId) => apiClient.get(`/assignments/doctor/${doctorId}/patients`),
+};
+
 export const adminAPI = {
   getUsers: (params) => apiClient.get('/admin/users', { params }),
   createUser: (data) => apiClient.post('/admin/users', data),

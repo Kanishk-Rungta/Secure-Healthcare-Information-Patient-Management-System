@@ -140,3 +140,4 @@ Dockerfile.prod
 # Test files
 test-results/
 coverage/
+.mongo_data/ 

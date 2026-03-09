@@ -526,6 +526,71 @@ class PatientController {
     }
   }
 
+  // Get patient lab reports
+  static async getLabReports(req, res) {
+    try {
+      const { patientId } = req.params;
+      const { testType } = req.query;
+      const userId = req.user._id;
+      const userRole = req.user.role;
+
+      // Get medical records with lab_result type
+      const query = {
+        patientId,
+        recordType: 'lab_result',
+        isLatestVersion: true,
+        deletedAt: { $exists: false }
+      };
+
+      if (testType) {
+        query['content.labResult.testType'] = testType;
+      }
+
+      const labReports = await MedicalRecord.find(query)
+        .sort({ 'content.labResult.resultDate': -1 })
+        .populate('providerId', 'profile.firstName profile.lastName role');
+
+      // Log access
+      await AuditLog.createLog({
+        eventType: 'READ',
+        userId,
+        userRole,
+        targetPatientId: patientId,
+        resourceType: 'medical_record',
+        resourceId: patientId,
+        action: 'VIEW_PATIENT_LAB_REPORTS',
+        description: `Accessed ${labReports.length} lab reports for patient`,
+        dataAccessed: {
+          recordCount: labReports.length,
+          dataType: 'lab_reports'
+        },
+        consentVerified: req.consentVerified || false,
+        consentId: req.consentId,
+        requestDetails: {
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent'),
+          endpoint: req.originalUrl,
+          method: req.method,
+          requestId: req.requestId || uuidv4()
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          labReports
+        }
+      });
+    } catch (error) {
+      console.error('Get lab reports error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to get lab reports',
+        code: 'LAB_REPORTS_ERROR'
+      });
+    }
+  }
+
   // Search patients (for medical staff)
   static async searchPatients(req, res) {
     try {

@@ -1,198 +1,206 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  ShieldCheck,
-  ArrowRight,
-  Activity,
-  Users,
-  User,
-  Lock,
-  Database,
-  Stethoscope,
-  Heart,
-  Zap,
-  CheckCircle2,
-  ChevronRight,
-  Plus,
-  FileText
-} from 'lucide-react';
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] font-sans antialiased overflow-hidden text-slate-900">
-      {/* Premium Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl border-b border-slate-100 px-8 py-4 transition-all duration-500">
-        <div className="max-w-[1440px] mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
-              <ShieldCheck className="text-white w-6 h-6" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-blue-200 to-indigo-200">
+      {/* Navigation */}
+      <nav className="bg-white border-b slide-in-left">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <span className="text-xl font-semibold text-gray-900">
+                SecureHealth
+              </span>
             </div>
-            <span className="text-xl font-black text-slate-900 tracking-tighter">SECUREHEALTH</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-10">
-            {['Platforms', 'Security', 'Enterprise', 'Resources'].map(item => (
-              <button key={item} className="text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">{item}</button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => navigate('/login')}
-              className="text-sm font-black text-slate-500 hover:text-slate-900 transition-colors"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => navigate('/register')}
-              className="bg-slate-900 text-white px-8 py-3 rounded-2xl text-sm font-black shadow-2xl shadow-slate-900/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-            >
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                className="bg-blue-600 text-white px-4 py-2 text-sm hover:bg-blue-700"
+              >
+                Get Started
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-44 pb-32 px-8 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-50 rounded-full blur-[120px] -mr-96 -mt-96 opacity-50" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-rose-50 rounded-full blur-[100px] -ml-64 -mb-64 opacity-50" />
-
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="relative z-10 space-y-10 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-600 text-xs font-black uppercase tracking-widest shadow-sm">
-              <Zap className="w-3 h-3 fill-indigo-600" />
-              Now HIPAA & GDPR Certified
-            </div>
-            <h1 className="text-7xl font-black text-slate-900 tracking-tighter leading-[1.05]">
-              Modernizing <br />
-              <span className="text-indigo-600 bg-clip-text">Healthcare</span> <br />
-              Infrastructures.
-            </h1>
-            <p className="text-xl text-slate-500 font-bold max-w-xl leading-relaxed">
-              A military-grade operating system for hospitals. Manage patients, clinicians, and assets with decentralized security and real-time telemetry.
-            </p>
-            <div className="flex items-center gap-6 pt-6">
-              <button
-                onClick={() => navigate('/register')}
-                className="bg-indigo-600 text-white px-10 py-5 rounded-3xl text-[13px] font-black uppercase tracking-[0.1em] shadow-2xl shadow-indigo-600/40 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all"
-              >
-                Provision Account
-              </button>
-              <button className="flex items-center gap-3 text-slate-400 font-black hover:text-slate-900 transition-colors uppercase tracking-widest text-xs group">
-                Watch Demo
-                <div className="p-3 rounded-full bg-slate-100 group-hover:bg-indigo-100 transition-colors">
-                  <Plus className="w-4 h-4" />
-                </div>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-10 pt-12">
-              <div className="flex -space-x-4">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-50 shadow-lg flex items-center justify-center">
-                    <User className="w-6 h-6 text-slate-300" />
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-black text-slate-900">Over 500+ Healthcare Units</span>
-                <span className="text-xs font-bold text-slate-400">Actively managed globally</span>
-              </div>
-            </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 slide-in-right">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Secure Healthcare Management
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            A comprehensive platform for managing patient records, appointments, and healthcare operations.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={() => navigate('/register')}
+              className="bg-blue-600 text-white px-6 py-3 text-sm hover:bg-blue-700"
+            >
+              Get Started
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="border border-gray-300 text-gray-700 px-6 py-3 text-sm hover:bg-gray-50"
+            >
+              Sign In
+            </button>
           </div>
+        </div>
+      </div>
 
-          <div className="relative group animate-fade-in-up delay-200">
-            <div className="absolute inset-0 bg-indigo-600/5 rounded-[60px] blur-3xl group-hover:bg-indigo-600/10 transition-colors" />
-            <div className="relative bg-white border border-slate-100 rounded-[60px] p-10 shadow-2xl shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all duration-700">
-              <div className="grid grid-cols-2 gap-8">
-                <div className="p-8 bg-slate-50 rounded-[40px] space-y-6">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-inner">
-                    <Activity className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">Real-time Triage</h3>
-                  <p className="text-xs font-bold text-slate-400 leading-relaxed italic">Managing patient flow with AI-driven weighted ranking and workload distribution.</p>
-                </div>
-                <div className="p-8 bg-indigo-600 rounded-[40px] space-y-6 text-white shadow-2xl shadow-indigo-600/30 translate-y-8">
-                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-                    <Lock className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">Secure Vault</h3>
-                  <p className="text-[11px] font-bold text-indigo-100 leading-relaxed">Cryptographically secured medical records with multi-factor audit trails.</p>
-                </div>
-                <div className="p-8 bg-slate-50 rounded-[40px] space-y-6 mt-8">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-inner">
-                    <Database className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">Lab Analytics</h3>
-                  <p className="text-xs font-bold text-slate-400 leading-relaxed">Integrated telemetry for clinical assets and laboratory operations.</p>
-                </div>
-                <div className="p-8 bg-white border border-slate-100 rounded-[40px] space-y-6 translate-y-8 shadow-xl">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-                    <Stethoscope className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">MD Console</h3>
-                  <p className="text-xs font-bold text-slate-400 leading-relaxed">Specialized MD portal with full clinical history and prescription modules.</p>
-                </div>
+      {/* Features Section */}
+      <div className="bg-gray-50 py-16 slide-in-left">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
+            Platform Features
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Records</h3>
+              <p className="text-gray-600">Encrypted patient data with role-based access control</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Easy Management Systems</h3>
+              <p className="text-gray-600">Streamlined workflows and unified management tools</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Multi-Role Access</h3>
+              <p className="text-gray-600">Specialized interfaces for all healthcare roles</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Trust Banner */}
-      <section className="py-20 bg-slate-50/50 border-y border-slate-100">
-        <div className="max-w-[1440px] mx-auto px-8">
-          <div className="flex flex-wrap justify-between items-center gap-12 opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all duration-700">
-            {['RED CROSS', 'CLINIC-X', 'HEALTH-VAULT', 'MD-OS', 'BIO-LAB'].map(name => (
-              <span key={name} className="text-3xl font-black text-slate-300 group-hover:text-slate-900 transition-colors tracking-tighter">{name}</span>
-            ))}
+      {/* Roles Section */}
+      <div className="py-16 slide-in-right">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
+            User Roles
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="border border-blue-200 rounded-lg p-6 bg-blue-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-blue-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-blue-100 text-blue-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </span>
+                Patient
+              </h3>
+              <p className="text-gray-600 text-sm">Access records, schedule appointments, manage consents</p>
+            </div>
+            <div className="border border-indigo-200 rounded-lg p-6 bg-indigo-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-indigo-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-indigo-100 text-indigo-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </span>
+                Doctor
+              </h3>
+              <p className="text-gray-600 text-sm">Manage patients, create records, prescribe medications</p>
+            </div>
+            <div className="border border-emerald-200 rounded-lg p-6 bg-emerald-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-emerald-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-emerald-100 text-emerald-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                  </svg>
+                </span>
+                Receptionist
+              </h3>
+              <p className="text-gray-600 text-sm">Manage front-desk tasks, patient intake, appointments</p>
+            </div>
+            <div className="border border-amber-200 rounded-lg p-6 bg-amber-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-amber-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-amber-100 text-amber-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 2v6l-4.5 7.5A4 4 0 008 21h8a4 4 0 003.5-5.5L15 8V2" />
+                  </svg>
+                </span>
+                Lab Technician
+              </h3>
+              <p className="text-gray-600 text-sm">Process tests, manage results, ensure quality</p>
+            </div>
+            <div className="border border-purple-200 rounded-lg p-6 bg-purple-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-purple-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-purple-100 text-purple-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v8m-4-4h8" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12a8 8 0 1116 0 8 8 0 01-16 0z" />
+                  </svg>
+                </span>
+                Pharmacist
+              </h3>
+              <p className="text-gray-600 text-sm">Dispense medications, manage inventory</p>
+            </div>
+            <div className="border border-rose-200 rounded-lg p-6 bg-rose-50/70 backdrop-blur transition transform hover:shadow-lg hover:-translate-y-1 hover:bg-rose-100/80">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-rose-100 text-rose-600 inline-flex items-center justify-center">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m2 9H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </span>
+                Administrator
+              </h3>
+              <p className="text-gray-600 text-sm">Manage system, users, settings, and security</p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Featured Section */}
-      <section className="py-32 px-8">
-        <div className="max-w-[1440px] mx-auto">
-          <div className="text-center space-y-6 mb-24">
-            <h2 className="text-sm font-black text-indigo-600 uppercase tracking-[0.3em]">Core Architecture</h2>
-            <h3 className="text-5xl font-black text-slate-900 tracking-tighter">Engineered for Reliability.</h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              { title: 'RBAC Security', desc: 'Role-Based Access Control ensuring only authorized personnel can view sensitive telemetry.', icon: ShieldCheck, color: 'indigo' },
-              { title: 'Audit Engine', desc: 'Immutable logging of every interaction within the platform for regulatory compliance.', icon: FileText, color: 'rose' },
-              { title: 'Vitals Sync', desc: 'Synchronized patient data across Reception, Doctor, and Lab portals in real-time.', icon: Activity, color: 'emerald' },
-            ].map((feat, i) => (
-              <div key={i} className="group p-10 bg-white border border-slate-100 rounded-[48px] hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
-                <div className={`w-16 h-16 bg-${feat.color}-500/10 rounded-[28px] flex items-center justify-center mb-8 border border-${feat.color}-500/10 transition-colors group-hover:bg-${feat.color}-600`}>
-                  <feat.icon className={`w-8 h-8 text-${feat.color}-600 group-hover:text-white transition-colors`} />
-                </div>
-                <h4 className="text-2xl font-black text-slate-900 tracking-tight mb-4 uppercase">{feat.title}</h4>
-                <p className="text-slate-500 font-bold leading-relaxed">{feat.desc}</p>
-              </div>
-            ))}
-          </div>
+      {/* CTA Section */}
+      <div className="bg-blue-600 py-16 slide-in-left">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Ready to get started?
+          </h2>
+          <p className="text-blue-100 mb-8">
+            Join thousands of healthcare professionals using our platform
+          </p>
+          <button
+            onClick={() => navigate('/register')}
+            className="bg-white text-blue-600 px-6 py-3 text-sm font-medium hover:bg-gray-50"
+          >
+            Create Account
+          </button>
         </div>
-      </section>
+      </div>
 
-      {/* Modern CSS for Scrollbars and Animations */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .delay-200 { animation-delay: 0.2s; }
-      `}} />
+      {/* Footer */}
+      <footer className="bg-gray-50 py-8 slide-in-right">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-500 text-sm">
+            © 2024 SecureHealth. HIPAA Compliant & GDPR Ready.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

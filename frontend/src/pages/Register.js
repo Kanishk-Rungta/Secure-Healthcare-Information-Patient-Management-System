@@ -26,9 +26,8 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const medicalStaffRoles = ['doctor', 'receptionist', 'lab_technician', 'pharmacist'];
+  const medicalStaffRoles = ['doctor', 'receptionist'];
   const isMedicalStaff = medicalStaffRoles.includes(formData.role.toLowerCase());
-
 
   const getPasswordStrength = (value) => {
     if (!value) return { label: 'Weak', color: 'text-rose-600', bar: 'bg-rose-200', width: 'w-1/4' };
@@ -64,10 +63,9 @@ const Register = () => {
   const hasRequiredStaffFields = (() => {
     if (!isMedicalStaff) return true;
     const role = formData.role.toLowerCase();
-    if (['doctor', 'lab_technician', 'pharmacist'].includes(role)) {
-      return formData.licenseNumber && formData.department && (role !== 'doctor' || formData.specialization);
+    if (role === 'doctor') {
+      return formData.licenseNumber && formData.department && formData.specialization;
     }
-
     if (role === 'receptionist') {
       return !!formData.receptionistId;
     }
@@ -161,21 +159,20 @@ const Register = () => {
     // Validate staff-specific fields
     const roleLower = formData.role.toLowerCase();
     if (medicalStaffRoles.includes(roleLower)) {
-      if (['doctor', 'lab_technician', 'pharmacist'].includes(roleLower)) {
+      if (roleLower === 'doctor') {
         if (!formData.licenseNumber) {
-          setError(`License number is required for ${roleLower.replace('_', ' ')}s`);
+          setError('License number is required for doctors');
           return;
         }
         if (!formData.department) {
-          setError(`Department is required for ${roleLower.replace('_', ' ')}s`);
+          setError('Department is required for doctors');
           return;
         }
-        if (roleLower === 'doctor' && !formData.specialization) {
+        if (!formData.specialization) {
           setError('Specialization is required for doctors');
           return;
         }
       }
-
       if (roleLower === 'receptionist') {
         if (!formData.receptionistId) {
           setError('Receptionist ID is required for receptionists');
@@ -213,16 +210,13 @@ const Register = () => {
       // Add professional info for medical staff
       if (medicalStaffRoles.includes(formData.role.toLowerCase())) {
         const roleLower = formData.role.toLowerCase();
-        if (['doctor', 'lab_technician', 'pharmacist'].includes(roleLower)) {
+        if (roleLower === 'doctor') {
           requestData.profile.professionalInfo = {
             licenseNumber: formData.licenseNumber,
-            department: formData.department
+            department: formData.department,
+            specialization: formData.specialization
           };
-          if (roleLower === 'doctor') {
-            requestData.profile.professionalInfo.specialization = formData.specialization;
-          }
         } else if (roleLower === 'receptionist') {
-
           requestData.profile.professionalInfo = {
             receptionistId: formData.receptionistId
           };
@@ -420,10 +414,7 @@ const Register = () => {
                         <option value="PATIENT">Patient</option>
                         <option value="DOCTOR">Doctor</option>
                         <option value="RECEPTIONIST">Receptionist</option>
-                        <option value="LAB_TECHNICIAN">Lab Technician</option>
-                        <option value="PHARMACIST">Pharmacist</option>
                       </select>
-
                       <label
                         htmlFor="role"
                         className="absolute left-4 -top-2 text-xs text-blue-600 bg-white px-1"

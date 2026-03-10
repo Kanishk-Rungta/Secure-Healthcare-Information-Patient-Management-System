@@ -58,11 +58,10 @@ function App() {
           {/* Role-specific Dashboards */}
           <Route path="/patient" element={<Layout><PatientDashboard /></Layout>} />
           <Route path="/doctor" element={<Layout><DoctorDashboard /></Layout>} />
-          <Route path="/receptionist" element={<Layout hideHeader><ReceptionistDashboard /></Layout>} />
-          <Route path="/lab" element={<Layout hideHeader><LabTechnicianDashboard /></Layout>} />
-          <Route path="/pharmacy" element={<Layout hideHeader><PharmacistDashboard /></Layout>} />
+          <Route path="/receptionist" element={<Layout><ReceptionistDashboard /></Layout>} />
+          <Route path="/lab" element={<Layout><LabTechnicianDashboard /></Layout>} />
+          <Route path="/pharmacy" element={<Layout><PharmacistDashboard /></Layout>} />
           <Route path="/admin" element={<Layout><AdministratorDashboard /></Layout>} />
-
 
           {/* Patient Routes */}
           <Route path="/patient/profile" element={<Layout><PatientProfile /></Layout>} />

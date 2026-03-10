@@ -21,8 +21,11 @@ const Dashboard = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('authUser');
+    localStorage.removeItem('authTokens');
     navigate('/login');
   };
+
 
   if (loading) {
     return (

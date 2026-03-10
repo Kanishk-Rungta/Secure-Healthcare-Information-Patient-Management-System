@@ -120,7 +120,7 @@ const Login = () => {
       }
     } catch (err) {
       let errorMessage = 'Unable to reach the server. Please check the API URL and backend status.';
-      
+
       if (err?.response?.status === 401 || err?.response?.status === 400) {
         errorMessage = err?.response?.data?.message || 'Invalid email or password. Please try again.';
       } else if (err?.message?.includes('timeout')) {
@@ -128,7 +128,7 @@ const Login = () => {
       } else if (err?.response?.data?.errors && Array.isArray(err.response.data.errors)) {
         errorMessage = err.response.data.errors[0];
       }
-      
+
       setError(errorMessage);
       setLoading(false);
     }

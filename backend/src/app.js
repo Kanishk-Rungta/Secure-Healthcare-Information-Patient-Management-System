@@ -17,8 +17,6 @@ const patientRoutes = require('./routes/patients');
 const consentRoutes = require('./routes/consent');
 const assignmentRoutes = require('./routes/assignments');
 const receptionistRoutes = require('./routes/receptionist');
-const schedulingRoutes = require('./routes/scheduling');
-
 
 /**
  * Main Application - Secure healthcare system entry point
@@ -99,8 +97,6 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/consent', consentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/receptionist', receptionistRoutes);
-app.use('/api/scheduling', schedulingRoutes);
-
 
 // API documentation endpoint
 app.get('/api', (req, res) => {
@@ -142,11 +138,7 @@ app.get('/api', (req, res) => {
         'GET /api/receptionist/complaints': 'Get all complaints (filtered by role)',
         'GET /api/receptionist/complaints/:complaintId': 'Get specific complaint',
         'PUT /api/receptionist/complaints/:complaintId/status': 'Update complaint status'
-      },
-      scheduling: {
-        'POST /api/scheduling/match-doctor': 'Weighted matching algorithm for physician assignment'
       }
-
     },
     security: {
       authentication: 'JWT Bearer Token',

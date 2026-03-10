@@ -8,26 +8,20 @@ const crypto = require('crypto');
 
 const connectDB = async () => {
   try {
-    let mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/healthcare_system').trim();
-
-    // Clean up if the URI accidentally contains the key name (common deployment error)
-    if (mongoURI.startsWith('MONGODB_URI=')) {
-      mongoURI = mongoURI.replace('MONGODB_URI=', '');
-    }
+    let mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/healthcare_system';
 
     console.log('🔗 Attempting to connect to MongoDB...');
     console.log(`📍 URI: ${mongoURI.replace(/\/\/.*@/, '//***:***@')}`); // Hide credentials
 
-    const isAtlas = mongoURI.includes('mongodb+srv://');
     const options = {
       // Security settings - for MongoDB Atlas, SSL is required
-      ssl: isAtlas || process.env.NODE_ENV === 'production',
+      ssl: process.env.NODE_ENV === 'production',
       tlsAllowInvalidCertificates: false,
       authSource: 'admin',
 
       // Connection settings
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4,
 
@@ -39,16 +33,17 @@ const connectDB = async () => {
     let conn;
     try {
       conn = await mongoose.connect(mongoURI, options);
-      console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+      console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-      console.warn('⚠️  Local/Remote MongoDB connection failed. Error:', err.message);
-      console.warn('🔄 Falling back to MongoDB Memory Server for local development...');
+      console.warn('⚠️  Local/Remote MongoDB connection failed. Falling back to MongoDB Memory Server for local development...');
       const { MongoMemoryServer } = require('mongodb-memory-server');
-      const mongoServer = await MongoMemoryServer.create();
+      const mongoServer = await MongoMemoryServer.create({
+        instance: { port: 27017 }
+      });
       mongoURI = mongoServer.getUri();
       console.log(`📍 In-Memory Database URI: ${mongoURI}`);
       conn = await mongoose.connect(mongoURI, { ...options, ssl: false, authSource: '' });
-      console.log(`✅ MongoDB Memory Server Connected: ${conn.connection.host}`);
+      console.log(`MongoDB Memory Server Connected: ${conn.connection.host}`);
     }
 
     // Enable encryption for sensitive fields

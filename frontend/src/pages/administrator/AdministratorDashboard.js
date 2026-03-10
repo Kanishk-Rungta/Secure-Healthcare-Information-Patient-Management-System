@@ -1,10 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Users,
+  ShieldCheck,
+  Activity,
+  Settings,
+  Search,
+  Bell,
+  LogOut,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Database,
+  Lock,
+  RefreshCw,
+  Plus,
+  ArrowRight,
+  TrendingUp,
+  User,
+  ShieldAlert,
+  HardDrive,
+  Cpu,
+  MoreVertical,
+  ChevronRight
+} from 'lucide-react';
 
 const AdministratorDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('inventory');
+
+  // Mock Admin Stats
+  const systemStats = [
+    { label: 'Active Sessions', value: '42', icon: Activity, color: 'indigo' },
+    { label: 'Security Threats', value: '00', icon: ShieldAlert, color: 'emerald' },
+    { label: 'DB Integrity', value: '99.9%', icon: Database, color: 'sky' },
+    { label: 'System Load', value: '14%', icon: Cpu, color: 'indigo' },
+  ];
+
+  const recentUsers = [
+    { id: 'USR-201', name: 'Dr. Sarah Wilson', role: 'Doctor', status: 'Active', login: '2m ago' },
+    { id: 'USR-202', name: 'John Marston', role: 'Patient', status: 'Active', login: '15m ago' },
+    { id: 'USR-203', name: 'Sr. Tech Varga', role: 'Lab Tech', status: 'Verified', login: '1h ago' },
+    { id: 'USR-204', name: 'Sadie Adler', role: 'Pharmacist', status: 'Maintenance', login: '3h ago' },
+  ];
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -17,395 +57,347 @@ const AdministratorDashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.clear();
     navigate('/login');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <div className="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <span className="ml-3 text-xl font-semibold text-gray-900">
-                  Admin Portal
-                </span>
-              </div>
+    <div className="flex h-screen bg-[#FDFDFF] font-sans antialiased overflow-hidden text-slate-900">
+      {/* Sidebar Navigation */}
+      <aside className="w-80 bg-white border-r border-slate-100 flex flex-col z-20 shadow-[20px_0_40px_-20px_rgba(0,0,0,0.03)]">
+        <div className="p-8">
+          <div className="flex items-center gap-4 mb-12">
+            <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/30">
+              <Settings className="text-white w-7 h-7 animate-[spin_10s_linear_infinite]" />
             </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="text-sm">
-                  <p className="text-gray-900 font-medium">{user?.firstName} {user?.lastName}</p>
-                  <p className="text-gray-500 text-xs">Administrator</p>
-                </div>
-                <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <span className="text-purple-600 font-medium text-sm">
-                    {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="bg-red-50 text-red-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition duration-150 ease-in-out"
-              >
-                Logout
-              </button>
+            <div className="flex flex-col">
+              <span className="font-black text-xl text-slate-900 tracking-tighter leading-none">SYSCORE</span>
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Admin Panel</span>
             </div>
           </div>
-        </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {user?.firstName}!
-            </h1>
-            <p className="mt-2 text-gray-600">
-              System administration and management
+          <nav className="space-y-2">
+            {[
+              { id: 'inventory', label: 'User Provisioning', icon: Users },
+              { id: 'security', label: 'Audit protocols', icon: Lock },
+              { id: 'system', label: 'Backend Pulse', icon: HardDrive },
+              { id: 'access', label: 'Global Access', icon: ShieldCheck },
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-3xl font-black transition-all duration-300 group ${activeTab === item.id
+                  ? 'bg-slate-900 text-white shadow-2xl shadow-slate-900/20 translate-x-2'
+                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                  }`}
+              >
+                <item.icon className={`w-5 h-5 transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="text-sm tracking-tight">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className="mt-auto p-8 pt-0">
+          <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 mb-8 relative overflow-hidden group">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Root Access</span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-bold leading-tight italic">Level 5 Security Clearance Verified. All actions are traced.</p>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-between px-6 py-5 rounded-3xl font-black text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all group border border-transparent hover:border-rose-100 shadow-sm hover:shadow-lg active:scale-95"
+          >
+            <div className="flex items-center gap-4">
+              <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm">End Terminal</span>
+            </div>
+            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all" />
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Workspace */}
+      <main className="flex-1 flex flex-col relative overflow-hidden">
+        {/* Modern Header */}
+        <header className="h-28 bg-white/50 backdrop-blur-3xl border-b border-slate-100 flex items-center justify-between px-12 sticky top-0 z-10 transition-all">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">System Governance</h1>
+            <p className="text-slate-400 font-bold text-sm flex items-center gap-2 mt-2 uppercase tracking-wide">
+              <ShieldCheck className="w-4 h-4 text-indigo-500" />
+              Root Node • Secure Healthcare Infrastructure
             </p>
           </div>
 
-          {/* System Stats */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Users
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        1,847
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
+          <div className="flex items-center gap-10">
+            <div className="relative group hidden xl:block">
+              <Search className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="text"
+                placeholder="Query system logs or user DB..."
+                className="bg-slate-100/80 rounded-3xl pl-14 pr-8 py-4 w-96 outline-none font-bold text-slate-600 placeholder:text-slate-400 border border-transparent focus:border-indigo-200 focus:bg-white transition-all shadow-inner"
+              />
             </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        System Health
-                      </dt>
-                      <dd className="text-lg font-medium text-green-600">
-                        Healthy
-                      </dd>
-                    </dl>
-                  </div>
+            <div className="flex items-center gap-6">
+              <div className="relative group cursor-pointer">
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-[10px] font-black text-white flex items-center justify-center rounded-full border-2 border-white ring-4 ring-rose-500/10">!</div>
+                <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm group-hover:shadow-md transition-all active:scale-95">
+                  <Bell className="w-6 h-6 text-slate-600" />
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Security Alerts
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        3
-                      </dd>
-                    </dl>
-                  </div>
+              <div className="h-12 w-px bg-slate-200" />
+              <div className="flex items-center gap-5 cursor-pointer group">
+                <div className="text-right flex flex-col items-end">
+                  <span className="text-sm font-black text-slate-900 leading-none italic uppercase">
+                    {user ? `${user.profile?.firstName} ${user.profile?.lastName}` : 'Administrator'}
+                  </span>
+                  <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-1.5 px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded-md">Super Admin</span>
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        API Requests
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        24.5K
-                      </dd>
-                    </dl>
-                  </div>
+                <div className="w-14 h-14 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center justify-center relative overflow-hidden transition-transform group-hover:scale-105 active:scale-95">
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                  <Database className="text-white w-7 h-7 relative z-10" />
                 </div>
               </div>
             </div>
           </div>
+        </header>
 
-          {/* Quick Actions */}
-          <div className="bg-white shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Administrative Actions
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <button
-                  onClick={() => navigate('/admin/users')}
-                  className="inline-flex items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Manage Users
-                </button>
-                <button
-                  onClick={() => navigate('/admin/audit-logs')}
-                  className="inline-flex items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Audit Logs
-                </button>
-                <button
-                  onClick={() => navigate('/admin/settings')}
-                  className="inline-flex items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  System Settings
-                </button>
-                <button className="inline-flex items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                  </svg>
-                  Backup Data
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Scrollable Clinical Area */}
+        <div className="flex-1 overflow-y-auto p-12 bg-[#F9FAFF]/50 relative space-y-12">
 
-          {/* System Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* User Distribution */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  User Distribution
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-blue-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Patients</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">1,234</span>
+          {/* Global System Telemetry */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {systemStats.map((stat, i) => (
+              <div key={i} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 group relative overflow-hidden">
+                <div className={`absolute top-0 right-0 w-24 h-24 -mt-8 -mr-8 bg-${stat.color}-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />
+                <div className="flex justify-between items-start mb-8 relative z-10">
+                  <div className={`w-14 h-14 bg-${stat.color}-500/10 rounded-2xl flex items-center justify-center border border-${stat.color}-500/10 shadow-inner`}>
+                    <stat.icon className={`w-7 h-7 text-${stat.color}-600`} />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-green-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Doctors</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">45</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-purple-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Receptionists</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">89</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-yellow-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Lab Technicians</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">23</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-red-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Pharmacists</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">18</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 bg-indigo-500 rounded-full mr-3"></div>
-                      <span className="text-sm text-gray-600">Administrators</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">12</span>
-                  </div>
+                  <div className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Node 01-A</div>
+                </div>
+                <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1.5">{stat.label}</p>
+                <div className="flex items-end gap-2">
+                  <h3 className="text-4xl font-black text-slate-800 tracking-tighter leading-none">{stat.value}</h3>
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 mb-1.5 animate-pulse" />
                 </div>
               </div>
-            </div>
-
-            {/* Recent System Activity */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Recent System Activity
-                </h3>
-                <div className="flow-root">
-                  <ul className="-mb-8">
-                    <li>
-                      <div className="relative pb-8">
-                        <div className="relative flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <div className="h-8 w-8 bg-green-500 rounded-full flex items-center justify-center">
-                              <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="min-w-0 flex-1 pt-1.5">
-                            <p className="text-sm text-gray-900">
-                              System backup completed successfully
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              2 hours ago
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="relative pb-8">
-                        <div className="relative flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
-                              <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="min-w-0 flex-1 pt-1.5">
-                            <p className="text-sm text-gray-900">
-                              New user registration: Dr. Sarah Johnson
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              4 hours ago
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="relative">
-                        <div className="relative flex space-x-3">
-                          <div className="flex-shrink-0">
-                            <div className="h-8 w-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                              <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="min-w-0 flex-1 pt-1.5">
-                            <p className="text-sm text-gray-900">
-                              Security update installed
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              6 hours ago
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Security Alerts */}
-          <div className="bg-white shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Security Alerts
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 bg-yellow-100 rounded-full p-2">
-                      <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+
+            {/* Main Sector: User Management Matrix */}
+            <div className="xl:col-span-2 space-y-10">
+
+              <section className="bg-white rounded-[48px] border border-slate-100 shadow-2xl shadow-indigo-500/5 overflow-hidden">
+                <div className="px-12 py-10 bg-slate-50/50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center">
+                      <Users className="w-7 h-7 text-white" />
                     </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-900">Unusual login activity detected</p>
-                      <p className="text-sm text-gray-500">Multiple failed login attempts from unknown IP</p>
+                    <div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">Identity Registry</h2>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">RBAC Access Control Matrix</p>
                     </div>
                   </div>
-                  <button className="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-700">
-                    Investigate
+                  <div className="flex gap-4">
+                    <button className="p-4 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all active:scale-95 shadow-sm">
+                      <RefreshCw className="w-6 h-6" />
+                    </button>
+                    <button className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all active:scale-95">
+                      <Plus className="w-5 h-5" />
+                      Provision User
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-slate-50/20 border-b border-slate-100">
+                        <th className="px-12 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Identity</th>
+                        <th className="px-12 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Role</th>
+                        <th className="px-12 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current State</th>
+                        <th className="px-12 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocols</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {recentUsers.map((u) => (
+                        <tr key={u.id} className="group hover:bg-slate-50/50 transition-all duration-300">
+                          <td className="px-12 py-8">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 font-black text-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                {u.name.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-black text-slate-800 tracking-tight uppercase">{u.name}</p>
+                                <p className="text-xs font-bold text-slate-400">Node ID: {u.id}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-12 py-8">
+                            <div className="flex items-center gap-2">
+                              <ShieldCheck className={`w-4 h-4 ${u.role === 'Doctor' ? 'text-indigo-500' : 'text-emerald-500'}`} />
+                              <span className="text-xs font-black text-slate-600 uppercase tracking-tight">{u.role}</span>
+                            </div>
+                          </td>
+                          <td className="px-12 py-8">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-2 h-2 rounded-full ${u.status === 'Maintenance' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'}`} />
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${u.status === 'Maintenance' ? 'text-amber-600' : 'text-emerald-600'}`}>{u.status}</span>
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Last Ack: {u.login}</p>
+                          </td>
+                          <td className="px-12 py-8 text-right">
+                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                              <button className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm">
+                                <Settings className="w-5 h-5" />
+                              </button>
+                              <button className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm">
+                                <ShieldAlert className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* Infrastructure Logic */}
+              <div className="bg-white rounded-[48px] border border-slate-100 shadow-xl p-10 space-y-10 relative overflow-hidden group">
+                <div className="absolute right-0 top-0 p-10 opacity-5 rotate-12 transition-transform duration-1000 group-hover:rotate-0">
+                  <Database className="w-48 h-48" />
+                </div>
+                <div className="flex items-center justify-between relative z-10">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Encrypted Storage Cluster</h3>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Cluster-Alpha Optimized</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+                  {[
+                    { l: 'Patient DB', v: 82 },
+                    { l: 'Medical Log', v: 45 },
+                    { l: 'Audit Vault', v: 91 },
+                    { l: 'System Core', v: 12 },
+                  ].map((cl, i) => (
+                    <div key={i} className="p-6 bg-slate-50/50 border border-slate-100 rounded-[32px] group/card hover:bg-indigo-50 transition-all">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 group-hover/card:text-indigo-600 transition-colors">{cl.l}</p>
+                      <div className="flex items-end justify-between gap-4">
+                        <span className="text-2xl font-black text-slate-800 tracking-tighter leading-none">{cl.v}GB</span>
+                        <TrendingUp className="w-4 h-4 text-emerald-500 mb-1" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Sector: Global Alerts */}
+            <div className="space-y-10">
+
+              {/* Security Health Profile */}
+              <div className="bg-slate-900 rounded-[48px] p-10 text-white shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mt-10 -mr-10" />
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mb-10 border border-white/10 backdrop-blur-md">
+                    <Lock className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-3 tracking-tighter">Security Posture</h3>
+                  <p className="text-slate-400 font-bold text-sm leading-relaxed mb-10 italic">Global firewall and encryption protocols are operating within standard parameters.</p>
+
+                  <div className="space-y-6 mb-10">
+                    {[
+                      { l: 'Firewall', c: 'indigo' },
+                      { l: 'AES-256 Auth', c: 'emerald' },
+                      { l: 'JWT Rotation', c: 'indigo' },
+                    ].map((p, i) => (
+                      <div key={i}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.l}</span>
+                          <span className={`text-[10px] font-black text-${p.c}-400 uppercase`}>Operational</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className={`h-full bg-${p.c}-500 shadow-[0_0_10px_rgba(var(--${p.c}-rgb),0.5)]`} style={{ width: '100%' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all uppercase tracking-widest text-[11px] active:scale-95">
+                    Run Comprehensive Audit
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Performance Metrics */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Performance Metrics
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">99.9%</div>
-                  <div className="text-sm text-gray-500">Uptime</div>
+              {/* High Alert Console */}
+              <div className="bg-white border border-slate-100 rounded-[48px] p-10 shadow-xl overflow-hidden relative group cursor-pointer hover:shadow-2xl transition-all duration-500">
+                <div className="absolute left-0 top-0 bottom-0 w-2 bg-rose-500 group-hover:w-4 transition-all" />
+                <div className="flex items-center justify-between mb-8 px-2">
+                  <h3 className="text-xs font-black text-rose-500 uppercase tracking-widest flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 animate-pulse" />
+                    Critical Alerts
+                  </h3>
+                  <span className="text-[10px] font-black text-slate-300 uppercase">Live Trace</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">142ms</div>
-                  <div className="text-sm text-gray-500">Avg Response Time</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">2.4GB</div>
-                  <div className="text-sm text-gray-500">Data Processed Today</div>
+                <p className="text-sm font-black text-slate-800 tracking-tight leading-relaxed uppercase px-2">Unauthorized access attempt blocked from IP: 192.168.1.XX</p>
+                <p className="text-[11px] font-bold text-slate-400 mt-4 leading-relaxed px-2 italic">Standard lockout protocols initiated automatically. No data leakage detected.</p>
+                <button className="w-full mt-10 py-5 bg-rose-50 text-rose-600 font-black rounded-3xl uppercase tracking-widest text-[10px] hover:bg-rose-500 hover:text-white transition-all">
+                  Acknowledge & Clear Alert
+                </button>
+              </div>
+
+              {/* Server Feed Log */}
+              <div className="bg-white border border-slate-100 rounded-[48px] p-10 shadow-lg shadow-indigo-500/5">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-10 px-2 leading-none">System Logs</h3>
+                <div className="space-y-8">
+                  {[
+                    { title: 'User USR-201 Logged In', time: '2m ago', color: 'indigo' },
+                    { title: 'Database Backup Complete', time: '14m ago', color: 'emerald' },
+                    { title: 'New API Key Provisioned', time: '1h ago', color: 'amber' },
+                  ].map((log, i) => (
+                    <div key={i} className="flex gap-6 group cursor-pointer relative">
+                      <div className={`shrink-0 w-3 h-3 rounded-full bg-${log.color}-500 mt-1 shadow-[0_0_10px_rgba(var(--${log.color}-rgb),0.5)] group-hover:scale-125 transition-transform`} />
+                      <div className="flex-1">
+                        <p className="text-[13px] font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors uppercase leading-none">{log.title}</p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest leading-none">Status: Success • {log.time}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modern CSS for Scrollbars */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #EEF2F7;
+          border-radius: 20px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #E2E8F0;
+        }
+      `}} />
     </div>
   );
 };

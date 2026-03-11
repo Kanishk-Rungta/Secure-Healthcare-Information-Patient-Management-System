@@ -10,11 +10,35 @@ const Dashboard = () => {
     // Check if user is logged in
     const userData = localStorage.getItem('user');
     if (userData) {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      
+      // Redirect based on role
+      switch (parsedUser.role) {
+        case 'patient':
+          navigate('/patient');
+          break;
+        case 'doctor':
+          navigate('/doctor');
+          break;
+        case 'receptionist':
+          navigate('/receptionist');
+          break;
+        case 'lab_technician':
+          navigate('/lab');
+          break;
+        case 'pharmacist':
+          navigate('/pharmacy');
+          break;
+        case 'administrator':
+          navigate('/admin');
+          break;
+        default:
+          setLoading(false);
+      }
     } else {
       navigate('/login');
     }
-    setLoading(false);
   }, [navigate]);
 
   const handleLogout = () => {

@@ -26,7 +26,8 @@ const medicalRecordSchema = new mongoose.Schema({
       'imaging',
       'clinical_note',
       'allergy',
-      'immunization'
+      'immunization',
+      'billing'
     ],
     required: true
   },
@@ -40,7 +41,7 @@ const medicalRecordSchema = new mongoose.Schema({
   
   providerRole: {
     type: String,
-    enum: ['doctor', 'receptionist', 'lab_technician', 'pharmacist'],
+    enum: ['doctor', 'receptionist', 'lab_technician', 'pharmacist', 'administrator'],
     required: true
   },
   
@@ -145,6 +146,25 @@ const medicalRecordSchema = new mongoose.Schema({
       anesthesia: String,
       complications: String,
       outcome: String
+    },
+
+    billing: {
+      amount: Number,
+      currency: {
+        type: String,
+        default: 'USD'
+      },
+      items: [{
+        description: String,
+        cost: Number
+      }],
+      status: {
+        type: String,
+        enum: ['pending', 'paid', 'cancelled'],
+        default: 'pending'
+      },
+      dueDate: Date,
+      paidDate: Date
     }
   },
   

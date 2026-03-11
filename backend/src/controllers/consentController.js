@@ -46,6 +46,49 @@ class ConsentController {
         });
       }
 
+      // Check for existing active consent to avoid duplicates
+      const existingConsent = await Consent.findOne({
+        patientId,
+        recipientId: consentData.recipientId,
+        dataType: consentData.dataType,
+        purpose: consentData.purpose || 'treatment',
+        status: 'active',
+        validUntil: { $gt: new Date() }
+      });
+
+      if (existingConsent) {
+        // Extend existing consent instead of creating new one
+        existingConsent.validUntil = new Date(consentData.validUntil || (Date.now() + 365 * 24 * 60 * 60 * 1000));
+        existingConsent.version += 1;
+        await existingConsent.save();
+
+        await AuditLog.createLog({
+          eventType: 'CONSENT_GRANTED',
+          userId,
+          userRole,
+          targetPatientId: patientId,
+          resourceType: 'consent',
+          resourceId: existingConsent._id,
+          action: 'EXTEND_CONSENT',
+          description: `Extended existing ${existingConsent.dataType} access for ${recipient.profile.firstName} ${recipient.profile.lastName}`,
+          requestDetails: {
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+            endpoint: req.originalUrl,
+            method: req.method,
+            requestId: req.requestId || uuidv4()
+          }
+        });
+
+        await existingConsent.populate('recipientId', 'profile.firstName profile.lastName email role');
+        
+        return res.json({
+          success: true,
+          message: 'Existing consent extended successfully',
+          data: { consent: existingConsent }
+        });
+      }
+
       // Create consent
       const consent = new Consent({
         patientId,

@@ -21,7 +21,7 @@ router.get('/',
  * GET /api/assignments/users/:role?search=term&limit=20
  */
 router.get('/users/:role',
-  authorize('receptionist', 'administrator'),
+  authorize('receptionist', 'administrator', 'patient'),
   AssignmentController.getUsersByRole
 );
 

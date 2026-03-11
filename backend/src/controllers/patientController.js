@@ -75,6 +75,35 @@ class PatientController {
     }
   }
 
+  // Get own patient profile
+  static async getMyPatientProfile(req, res) {
+    try {
+      const userId = req.user._id;
+      
+      const patient = await Patient.findOne({ userId })
+        .populate('userId', 'email profile.firstName profile.lastName profile.dateOfBirth');
+
+      if (!patient) {
+        return res.status(404).json({
+          success: false,
+          message: 'Patient profile not found',
+          code: 'PATIENT_PROFILE_NOT_FOUND'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: { patient }
+      });
+    } catch (error) {
+      console.error('Get my patient profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get patient profile'
+      });
+    }
+  }
+
   // Update patient demographics
   static async updateDemographics(req, res) {
     try {

@@ -9,9 +9,12 @@ const PatientDashboard = () => {
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [consents, setConsents] = useState([]);
   const [assignedDoctors, setAssignedDoctors] = useState([]);
+  const [labTechnicians, setLabTechnicians] = useState([]);
+  const [pharmacists, setPharmacists] = useState([]);
   const [activeTab, setActiveTab] = useState('records');
   const [showConsentModal, setShowConsentModal] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState('');
+  const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [recipientRole, setRecipientRole] = useState('doctor');
   const [selectedDataType, setSelectedDataType] = useState('all_records');
   const [consentPurpose, setConsentPurpose] = useState('treatment');
 
@@ -28,13 +31,15 @@ const PatientDashboard = () => {
   useEffect(() => {
     if (user) {
       getPatientId();
+      fetchLabTechnicians();
+      fetchPharmacists();
     }
   }, [user]);
 
   const getPatientId = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/patient?limit=100`, {
+      const response = await fetch(`http://localhost:5000/api/patients/my-profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -43,16 +48,52 @@ const PatientDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const currentPatient = data.data.find(p => p.userId._id === user._id || p.userId === user._id);
+        const currentPatient = data.data.patient;
         if (currentPatient) {
-          setPatientId(currentPatient._id || currentPatient.userId._id);
-          fetchMedicalRecords(currentPatient._id || currentPatient.userId._id);
-          fetchConsents(currentPatient._id || currentPatient.userId._id);
-          fetchAssignedDoctors(currentPatient._id || currentPatient.userId._id);
+          setPatientId(currentPatient._id);
+          fetchMedicalRecords(currentPatient._id);
+          fetchConsents(currentPatient._id);
+          fetchAssignedDoctors(currentPatient._id);
         }
       }
     } catch (error) {
       console.error('Error getting patient ID:', error);
+    }
+  };
+
+  const fetchLabTechnicians = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:5000/api/assignments/users/lab_technician?limit=50`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLabTechnicians(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching lab technicians:', error);
+    }
+  };
+
+  const fetchPharmacists = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:5000/api/assignments/users/pharmacist?limit=50`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPharmacists(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching pharmacists:', error);
     }
   };
 
@@ -75,35 +116,19 @@ const PatientDashboard = () => {
     }
   };
 
-  const fetchConsents = async () => {
+  const fetchConsents = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      // Need to get patient ID first
-      const patientResponse = await fetch(`http://localhost:5000/api/assignments/users/patient?limit=100`, {
+      const response = await fetch(`http://localhost:5000/api/consent/patients/${pId || patientId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      if (patientResponse.ok) {
-        const patientData = await patientResponse.json();
-        const currentPatient = patientData.data.find(p => p.userId._id === user._id || p.userId === user._id);
-        
-        if (currentPatient) {
-          const patientId = currentPatient._id || currentPatient.userId._id;
-          const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setConsents(data.data || []);
-          }
-        }
+      if (response.ok) {
+        const data = await response.json();
+        setConsents(data.data || []);
       }
     } catch (error) {
       console.error('Error fetching consents:', error);
@@ -136,15 +161,14 @@ const PatientDashboard = () => {
 
 
   const grantConsent = async () => {
-    if (!selectedDoctor) {
-      alert('Please select a doctor');
+    if (!selectedRecipient) {
+      alert('Please select a recipient');
       return;
     }
 
     try {
       const token = localStorage.getItem('accessToken');
 
-      // Now grant consent using the correct endpoint
       const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
         method: 'POST',
         headers: {
@@ -152,19 +176,19 @@ const PatientDashboard = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          recipientId: selectedDoctor,
-          recipientRole: 'doctor',
+          recipientId: selectedRecipient,
+          recipientRole: recipientRole,
           dataType: selectedDataType,
           purpose: consentPurpose,
-          duration: 365 // 1 year
+          validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year
         })
       });
 
       if (response.ok) {
         alert('Consent granted successfully!');
         setShowConsentModal(false);
-        setSelectedDoctor('');
-        fetchConsents();
+        setSelectedRecipient('');
+        fetchConsents(patientId);
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to grant consent');
@@ -183,12 +207,13 @@ const PatientDashboard = () => {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ reason: 'User revoked access' })
       });
 
       if (response.ok) {
         alert('Consent revoked successfully!');
-        fetchConsents();
+        fetchConsents(patientId);
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to revoke consent');
@@ -286,7 +311,7 @@ const PatientDashboard = () => {
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-sky-300'
                   }`}
               >
-                My Doctors
+                Healthcare Providers
               </button>
               <button
                 onClick={() => setActiveTab('consent')}
@@ -335,6 +360,23 @@ const PatientDashboard = () => {
                               {record.content?.description && (
                                 <p className="mt-2 text-slate-700">{record.content.description}</p>
                               )}
+                              {record.recordType === 'lab_result' && record.content?.labResult?.results && (
+                                <div className="mt-2 p-2 bg-white rounded border border-sky-100">
+                                  <p className="text-xs font-bold text-slate-500 uppercase mb-1">Results:</p>
+                                  {record.content.labResult.results.map((r, i) => (
+                                    <div key={i} className="text-sm">
+                                      {r.testName}: <span className="font-semibold">{r.value} {r.unit}</span> ({r.status})
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {record.recordType === 'billing' && record.content?.billing && (
+                                <div className="mt-2 p-2 bg-white rounded border border-sky-100">
+                                  <p className="text-xs font-bold text-slate-500 uppercase mb-1">Billing Info:</p>
+                                  <p className="text-sm font-semibold">Total Amount: {record.content.billing.amount} {record.content.billing.currency}</p>
+                                  <p className="text-xs text-slate-600">Status: {record.content.billing.status}</p>
+                                </div>
+                              )}
                             </div>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
                               {record.recordType}
@@ -349,50 +391,30 @@ const PatientDashboard = () => {
             </div>
           )}
 
-        {/* My Doctors Tab */}
+        {/* My Providers Tab */}
         {activeTab === 'doctors' && (
-          <div>
+          <div className="space-y-6">
             <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
               <div className="px-4 py-5 sm:p-6">
                 <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
-                  Your Assigned Doctors
+                  Assigned Doctors
                 </h3>
                 {assignedDoctors.length === 0 ? (
-                  <div className="text-center py-14">
-                    <div className="text-slate-400 mb-4">
-                      <svg className="mx-auto h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 8.048M7.5 19H5a2 2 0 01-2-2v-1a6 6 0 0112 0v1a2 2 0 01-2 2h-5.5M9 9h6m-6 4h6m2 5H7" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No doctors assigned yet</h3>
-                    <p className="text-slate-600">The reception team will assign a doctor to you soon. You can grant them access to your medical records once assigned.</p>
-                  </div>
+                  <p className="text-sm text-slate-500">No doctors assigned yet.</p>
                 ) : (
                   <div className="space-y-4">
                     {assignedDoctors.map((doctor) => (
                       <div key={doctor._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="text-lg font-medium text-slate-900">
-                              Dr. {doctor.profile?.firstName} {doctor.profile?.lastName}
-                            </h4>
-                            {doctor.profile?.professionalInfo?.specialization && (
-                              <p className="text-sm text-slate-600 mt-1">
-                                Specialization: {doctor.profile.professionalInfo.specialization}
-                              </p>
-                            )}
-                            {doctor.profile?.professionalInfo?.department && (
-                              <p className="text-sm text-slate-600">
-                                Department: {doctor.profile.professionalInfo.department}
-                              </p>
-                            )}
-                            <p className="text-xs text-slate-500 mt-2">
-                              Email: {doctor.email}
-                            </p>
+                            <h4 className="text-lg font-medium text-slate-900">Dr. {doctor.profile?.firstName} {doctor.profile?.lastName}</h4>
+                            <p className="text-sm text-slate-600">Specialization: {doctor.profile?.professionalInfo?.specialization}</p>
                           </div>
                           <button
                             onClick={() => {
-                              setSelectedDoctor(doctor._id);
+                              setSelectedRecipient(doctor._id);
+                              setRecipientRole('doctor');
+                              setSelectedDataType('all_records');
                               setShowConsentModal(true);
                             }}
                             className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
@@ -406,6 +428,68 @@ const PatientDashboard = () => {
                 )}
               </div>
             </div>
+
+            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
+                  Lab Technicians
+                </h3>
+                <div className="space-y-4">
+                  {labTechnicians.map((tech) => (
+                    <div key={tech._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-slate-900">{tech.profile?.firstName} {tech.profile?.lastName}</h4>
+                          <p className="text-sm text-slate-600">Department: {tech.profile?.professionalInfo?.department}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedRecipient(tech._id);
+                            setRecipientRole('lab_technician');
+                            setSelectedDataType('lab_results');
+                            setShowConsentModal(true);
+                          }}
+                          className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
+                        >
+                          Grant Access
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
+                  Pharmacists
+                </h3>
+                <div className="space-y-4">
+                  {pharmacists.map((ph) => (
+                    <div key={ph._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-slate-900">{ph.profile?.firstName} {ph.profile?.lastName}</h4>
+                          <p className="text-sm text-slate-600">Department: {ph.profile?.professionalInfo?.department}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedRecipient(ph._id);
+                            setRecipientRole('pharmacist');
+                            setSelectedDataType('prescriptions');
+                            setShowConsentModal(true);
+                          }}
+                          className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
+                        >
+                          Grant Access
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -414,29 +498,12 @@ const PatientDashboard = () => {
           <div>
             <div className="bg-white rounded-xl border border-sky-200 mb-6 shadow-sm">
               <div className="px-4 py-5 sm:p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg leading-6 font-semibold text-slate-900">
-                    Grant Access to Doctors
-                  </h3>
-                  <button
-                    onClick={() => setShowConsentModal(true)}
-                    className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
-                  >
-                    Grant New Access
-                  </button>
-                </div>
+                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
+                  Existing Permissions
+                </h3>
 
                 {consents.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-slate-400 mb-4">
-                      <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 11a7 7 0 1114 0v3a4 4 0 01-4 4H9a4 4 0 01-4-4v-3z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">No access granted</h3>
-                    <p className="text-slate-600">Grant access to doctors when you’re ready to share records.</p>
-                  </div>
+                  <p className="text-sm text-slate-500 text-center py-8">No active permissions found.</p>
                 ) : (
                   <div className="space-y-4">
                     {consents.map((consent) => (
@@ -444,20 +511,17 @@ const PatientDashboard = () => {
                         <div className="flex justify-between items-center">
                           <div>
                             <h4 className="font-medium text-slate-900">
-                              Dr. {consent.recipientId?.profile?.firstName} {consent.recipientId?.profile?.lastName}
+                              {consent.recipientId?.profile?.firstName} {consent.recipientId?.profile?.lastName} ({consent.recipientRole})
                             </h4>
                             <p className="text-sm text-slate-600">Access: {consent.dataType?.replace('_', ' ')}</p>
-                            <p className="text-sm text-slate-600">Purpose: {consent.purpose}</p>
-                            <p className="text-sm text-slate-600">
-                              Status: {consent.isActive ? 'Active' : 'Inactive'}
-                            </p>
+                            <p className="text-sm text-slate-600">Status: {consent.status}</p>
                           </div>
-                          {consent.isActive && (
+                          {consent.status === 'active' && (
                             <button
                               onClick={() => revokeConsent(consent._id)}
                               className="bg-rose-50 text-rose-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-rose-100"
                             >
-                              Revoke Access
+                              Revoke
                             </button>
                           )}
                         </div>
@@ -481,71 +545,94 @@ const PatientDashboard = () => {
             </div>
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Grant Access to Doctor
+                <h3 className="text-xl font-bold text-gray-900 mb-6">
+                  Grant Data Access
                 </h3>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Doctor
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                      1. Select Recipient Role
                     </label>
                     <select
-                      value={selectedDoctor}
-                      onChange={(e) => setSelectedDoctor(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      value={recipientRole}
+                      onChange={(e) => {
+                        setRecipientRole(e.target.value);
+                        setSelectedRecipient(''); // Reset recipient when role changes
+                      }}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                     >
-                      <option value="">Choose a doctor...</option>
-                      {assignedDoctors.map((doctor) => (
-                        <option key={doctor._id} value={doctor._id}>
-                          Dr. {doctor.profile?.firstName} {doctor.profile?.lastName} {doctor.profile?.professionalInfo?.specialization ? `- ${doctor.profile.professionalInfo.specialization}` : ''}
-                        </option>
+                      <option value="doctor">Doctor</option>
+                      <option value="lab_technician">Lab Technician</option>
+                      <option value="pharmacist">Pharmacist</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                      2. Choose Recipient
+                    </label>
+                    <select
+                      value={selectedRecipient}
+                      onChange={(e) => setSelectedRecipient(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                    >
+                      <option value="">Select a {recipientRole.replace('_', ' ')}...</option>
+                      {recipientRole === 'doctor' && assignedDoctors.map((d) => (
+                        <option key={d._id} value={d._id}>Dr. {d.profile?.firstName} {d.profile?.lastName}</option>
+                      ))}
+                      {recipientRole === 'lab_technician' && labTechnicians.map((t) => (
+                        <option key={t._id} value={t._id}>{t.profile?.firstName} {t.profile?.lastName} (Lab)</option>
+                      ))}
+                      {recipientRole === 'pharmacist' && pharmacists.map((p) => (
+                        <option key={p._id} value={p._id}>{p.profile?.firstName} {p.profile?.lastName} (Pharmacy)</option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Data Access Type
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                      3. Select Access Type
                     </label>
                     <select
                       value={selectedDataType}
                       onChange={(e) => setSelectedDataType(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                     >
                       <option value="all_records">All Medical Records</option>
-                      <option value="medical_history">Medical History</option>
-                      <option value="prescriptions">Prescriptions</option>
-                      <option value="lab_results">Lab Results</option>
+                      <option value="lab_results">Lab Results Only</option>
+                      <option value="prescriptions">Prescriptions Only</option>
+                      <option value="medical_history">Medical History Only</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Purpose
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                      4. Purpose
                     </label>
                     <select
                       value={consentPurpose}
                       onChange={(e) => setConsentPurpose(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                     >
                       <option value="treatment">Treatment</option>
-                      <option value="consultation">Consultation</option>
-                      <option value="emergency">Emergency Care</option>
+                      <option value="diagnosis">Diagnosis</option>
+                      <option value="billing">Billing</option>
+                      <option value="follow_up">Follow Up</option>
                     </select>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 px-4 py-4 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
                 <button
                   onClick={grantConsent}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-blue-600 text-base font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm transition"
                 >
-                  Grant Access
+                  Confirm & Grant Access
                 </button>
                 <button
                   onClick={() => setShowConsentModal(false)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm transition"
                 >
                   Cancel
                 </button>

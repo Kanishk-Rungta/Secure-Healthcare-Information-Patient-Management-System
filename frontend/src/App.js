@@ -77,7 +77,7 @@ function App() {
 
           {/* Admin Routes */}
           <Route path="/admin/users" element={<Layout><UserManagement /></Layout>} />
-          <Route path="/admin/audit-logs" element={<Layout><AuditLogs /></Layout>} />
+          <Route path="/admin/logs" element={<Layout><AuditLogs /></Layout>} />
           <Route path="/admin/settings" element={<Layout><SystemSettings /></Layout>} />
 
           {/* Error Routes */}

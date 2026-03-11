@@ -24,8 +24,14 @@ class ReceptionistController {
         });
       }
 
-      // Verify patient exists
-      const patient = await Patient.findById(patientId);
+      // Verify patient exists (handle both Patient ID and User ID)
+      let patient = await Patient.findById(patientId);
+      
+      if (!patient) {
+        // Try to find patient by userId if not found by patientId
+        patient = await Patient.findOne({ userId: patientId });
+      }
+
       if (!patient) {
         return res.status(404).json({
           success: false,
@@ -33,6 +39,8 @@ class ReceptionistController {
           code: 'PATIENT_NOT_FOUND'
         });
       }
+
+      const actualPatientId = patient._id;
 
       // Verify doctor exists and is a doctor
       const doctor = await User.findById(assignedDoctorId);
@@ -49,7 +57,7 @@ class ReceptionistController {
 
       // Create new complaint
       const complaint = new Complaint({
-        patientId,
+        patientId: actualPatientId,
         assignedDoctorId,
         receptionistId: actualReceptionistId,
         description,

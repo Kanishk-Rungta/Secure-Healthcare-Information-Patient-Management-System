@@ -64,35 +64,35 @@ const rateLimits = {
   // General API rate limit
   general: createRateLimit(
     15 * 60 * 1000, // 15 minutes
-    100, // 100 requests per window
+    10000, // 10000 requests per window (effectively disabled for dev)
     'Too many requests, please try again later'
   ),
 
   // Authentication endpoints (stricter)
   auth: createRateLimit(
     15 * 60 * 1000, // 15 minutes
-    5, // 5 attempts per window
+    1000, // 1000 attempts per window
     'Too many authentication attempts, please try again later'
   ),
 
   // Password reset (very strict)
   passwordReset: createRateLimit(
     60 * 60 * 1000, // 1 hour
-    3, // 3 attempts per hour
+    100, // 100 attempts per hour
     'Too many password reset attempts, please try again later'
   ),
 
   // Data export (limited)
   dataExport: createRateLimit(
     60 * 60 * 1000, // 1 hour
-    10, // 10 exports per hour
+    100, // 100 exports per hour
     'Too many data export requests, please try again later'
   ),
 
   // Emergency access (very limited)
   emergencyAccess: createRateLimit(
     24 * 60 * 60 * 1000, // 24 hours
-    5, // 5 emergency accesses per day
+    100, // 100 emergency accesses per day
     'Emergency access limit reached, please contact administrator'
   )
 };

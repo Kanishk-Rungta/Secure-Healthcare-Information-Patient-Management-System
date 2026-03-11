@@ -261,7 +261,8 @@ const determineDataType = (req) => {
     '/medications': 'medications',
     '/lab-results': 'lab_results',
     '/prescriptions': 'prescriptions',
-    '/vitals': 'vital_signs'
+    '/vitals': 'vital_signs',
+    '/billing': 'all_records' // Billing access usually requires broader record access or specific billing records
   };
   
   for (const [endpoint, dataType] of Object.entries(endpointMapping)) {
@@ -297,6 +298,11 @@ const determinePurpose = (req) => {
   // Follow-up endpoints
   if (path.includes('/follow-up')) {
     return 'follow_up';
+  }
+
+  // Billing endpoints
+  if (path.includes('/billing')) {
+    return 'billing';
   }
   
   // Default to treatment for medical access

@@ -205,19 +205,25 @@ class AssignmentController {
         });
       }
 
-      // Verify patient exists and is a patient
-      const patient = await User.findById(patientId);
-      if (!patient || patient.role !== 'patient') {
+      // Verify patient exists (handle both User ID and Patient ID)
+      let patientDoc = await Patient.findById(patientId);
+      if (!patientDoc) {
+        patientDoc = await Patient.findOne({ userId: patientId });
+      }
+
+      if (!patientDoc) {
         return res.status(400).json({
           success: false,
           message: 'Invalid patient ID'
         });
       }
 
+      const actualPatientId = patientDoc._id;
+
       // Check if assignment already exists and is active
       const existingAssignment = await Assignment.findOne({
         doctorId,
-        patientId,
+        patientId: actualPatientId,
         status: 'active',
         deletedAt: { $exists: false }
       });
@@ -232,7 +238,7 @@ class AssignmentController {
       // Create assignment
       const assignment = new Assignment({
         doctorId,
-        patientId,
+        patientId: actualPatientId,
         assignedBy: userId,
         reason: reason || `Assigned by ${req.user.profile.firstName} ${req.user.profile.lastName}`
       });

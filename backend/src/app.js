@@ -17,6 +17,7 @@ const patientRoutes = require('./routes/patients');
 const consentRoutes = require('./routes/consent');
 const assignmentRoutes = require('./routes/assignments');
 const receptionistRoutes = require('./routes/receptionist');
+const adminRoutes = require('./routes/admin');
 
 /**
  * Main Application - Secure healthcare system entry point
@@ -97,6 +98,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/consent', consentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/receptionist', receptionistRoutes);
+app.use('/api/admin', adminRoutes);
 
 // API documentation endpoint
 app.get('/api', (req, res) => {

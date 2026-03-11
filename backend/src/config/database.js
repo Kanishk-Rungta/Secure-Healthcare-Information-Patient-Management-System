@@ -8,24 +8,40 @@ const crypto = require('crypto');
 
 const connectDB = async () => {
   try {
-    let mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/healthcare_system';
+    let mongoURI = process.env.MONGODB_URI;
 
+    if (!mongoURI) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('MONGODB_URI environment variable is required in production');
+      }
+      console.warn('⚠️  MONGODB_URI not found in environment. Falling back to local default.');
+      mongoURI = 'mongodb://localhost:27017/healthcare_system';
+    }
+
+    const isAtlas = mongoURI.includes('mongodb+srv');
+    
     console.log('🔗 Attempting to connect to MongoDB...');
-    console.log(`📍 URI: ${mongoURI.replace(/\/\/.*@/, '//***:***@')}`); // Hide credentials
+    if (isAtlas) {
+      console.log('🌐 Target: MongoDB Atlas (Cloud)');
+    } else {
+      console.log('🏠 Target: Local MongoDB Instance');
+    }
 
     const options = {
-      // Security settings - for MongoDB Atlas, SSL is required
-      ssl: process.env.NODE_ENV === 'production',
+      // Security settings - for MongoDB Atlas, SSL/TLS is required
+      ssl: isAtlas || process.env.NODE_ENV === 'production',
       tlsAllowInvalidCertificates: false,
       authSource: 'admin',
 
-      // Connection settings
+      // Connection settings optimized for Atlas
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 15000, // Increased for cloud connections
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 15000,
       family: 4,
 
-      // Retry settings
+      // Reliability settings
       retryWrites: true,
       retryReads: true,
     };
@@ -33,17 +49,27 @@ const connectDB = async () => {
     let conn;
     try {
       conn = await mongoose.connect(mongoURI, options);
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
+      console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-      console.warn('⚠️  Local/Remote MongoDB connection failed. Falling back to MongoDB Memory Server for local development...');
-      const { MongoMemoryServer } = require('mongodb-memory-server');
-      const mongoServer = await MongoMemoryServer.create({
-        instance: { port: 27017 }
-      });
-      mongoURI = mongoServer.getUri();
-      console.log(`📍 In-Memory Database URI: ${mongoURI}`);
-      conn = await mongoose.connect(mongoURI, { ...options, ssl: false, authSource: '' });
-      console.log(`MongoDB Memory Server Connected: ${conn.connection.host}`);
+      if (process.env.NODE_ENV === 'production') {
+        throw err; // Fail fast in production
+      }
+
+      console.warn('⚠️  MongoDB connection failed. Falling back to MongoDB Memory Server for local development...');
+      try {
+        const { MongoMemoryServer } = require('mongodb-memory-server');
+        const mongoServer = await MongoMemoryServer.create();
+        const memoryUri = mongoServer.getUri();
+        console.log(`📍 In-Memory Database URI: ${memoryUri}`);
+        conn = await mongoose.connect(memoryUri, { 
+          maxPoolSize: 5,
+          serverSelectionTimeoutMS: 5000
+        });
+        console.log(`✅ MongoDB Memory Server Connected: ${conn.connection.host}`);
+      } catch (memErr) {
+        console.error('❌ Even Memory Server failed to start:', memErr.message);
+        throw err; // Throw the original connection error
+      }
     }
 
     // Enable encryption for sensitive fields

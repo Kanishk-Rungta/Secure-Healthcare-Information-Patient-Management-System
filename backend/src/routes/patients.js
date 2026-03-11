@@ -21,6 +21,12 @@ router.get('/search',
   PatientController.searchPatients
 );
 
+// Get current patient's profile
+router.get('/my-profile',
+  authorize('patient'),
+  PatientController.getMyPatientProfile
+);
+
 // Patient-specific routes
 router.use('/:patientId', canAccessPatient);
 

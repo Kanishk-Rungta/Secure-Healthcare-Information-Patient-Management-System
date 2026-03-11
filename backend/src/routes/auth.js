@@ -12,21 +12,18 @@ const router = express.Router();
 
 // Public routes (no authentication required)
 router.post('/register', 
-  rateLimits.auth,
   sanitizeInput,
   validateJSON,
   AuthController.register
 );
 
 router.post('/login',
-  rateLimits.auth,
   sanitizeInput,
   validateJSON,
   AuthController.login
 );
 
 router.post('/refresh-token',
-  rateLimits.auth,
   sanitizeInput,
   validateJSON,
   validateRefreshToken,

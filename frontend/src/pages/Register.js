@@ -18,7 +18,8 @@ const Register = () => {
     licenseNumber: '',
     specialization: '',
     department: '',
-    receptionistId: ''
+    receptionistId: '',
+    employeeId: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +27,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const medicalStaffRoles = ['doctor', 'receptionist'];
+  const medicalStaffRoles = ['doctor', 'receptionist', 'lab_technician', 'pharmacist', 'administrator'];
   const isMedicalStaff = medicalStaffRoles.includes(formData.role.toLowerCase());
 
   const getPasswordStrength = (value) => {
@@ -68,6 +69,12 @@ const Register = () => {
     }
     if (role === 'receptionist') {
       return !!formData.receptionistId;
+    }
+    if (['lab_technician', 'pharmacist'].includes(role)) {
+      return formData.licenseNumber && formData.department;
+    }
+    if (role === 'administrator') {
+      return !!formData.employeeId;
     }
     return true;
   })();
@@ -219,6 +226,15 @@ const Register = () => {
         } else if (roleLower === 'receptionist') {
           requestData.profile.professionalInfo = {
             receptionistId: formData.receptionistId
+          };
+        } else if (['lab_technician', 'pharmacist'].includes(roleLower)) {
+          requestData.profile.professionalInfo = {
+            licenseNumber: formData.licenseNumber,
+            department: formData.department
+          };
+        } else if (roleLower === 'administrator') {
+          requestData.profile.professionalInfo = {
+            employeeId: formData.employeeId
           };
         }
       }
@@ -414,6 +430,9 @@ const Register = () => {
                         <option value="PATIENT">Patient</option>
                         <option value="DOCTOR">Doctor</option>
                         <option value="RECEPTIONIST">Receptionist</option>
+                        <option value="LAB_TECHNICIAN">Lab Technician</option>
+                        <option value="PHARMACIST">Pharmacist</option>
+                        <option value="ADMINISTRATOR">Administrator</option>
                       </select>
                       <label
                         htmlFor="role"
@@ -450,6 +469,26 @@ const Register = () => {
                             </label>
                             <p className="text-xs text-gray-500 mt-2">Your internal receptionist identifier.</p>
                           </div>
+                        ) : formData.role.toLowerCase() === 'administrator' ? (
+                          <div className="relative">
+                            <input
+                              id="employeeId"
+                              name="employeeId"
+                              type="text"
+                              required
+                              value={formData.employeeId}
+                              onChange={handleChange}
+                              placeholder=" "
+                              className="peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            />
+                            <label
+                              htmlFor="employeeId"
+                              className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
+                            >
+                              Administrator Employee ID <span className="text-rose-500">*</span>
+                            </label>
+                            <p className="text-xs text-gray-500 mt-2">Required for administrative verification.</p>
+                          </div>
                         ) : (
                           <>
                             <div className="relative">
@@ -467,9 +506,9 @@ const Register = () => {
                                 htmlFor="licenseNumber"
                                 className="absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"
                               >
-                                License number <span className="text-rose-500">*</span>
+                                {formData.role.toLowerCase().replace('_', ' ')} License Number <span className="text-rose-500">*</span>
                               </label>
-                              <p className="text-xs text-gray-500 mt-2">Required to verify your credentials.</p>
+                              <p className="text-xs text-gray-500 mt-2">Required to verify your professional credentials.</p>
                             </div>
 
                             <div className="relative">
@@ -489,7 +528,7 @@ const Register = () => {
                               >
                                 Department <span className="text-rose-500">*</span>
                               </label>
-                              <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Emergency, Laboratory.</p>
+                              <p className="text-xs text-gray-500 mt-2">Example: Cardiology, Laboratory, Pharmacy.</p>
                             </div>
                           </>
                         )}

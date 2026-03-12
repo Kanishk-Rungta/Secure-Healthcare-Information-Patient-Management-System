@@ -2,6 +2,7 @@ const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const { sendOTP } = require('../utils/mailer');
 
 /**
  * Authentication Controller - Secure user authentication
@@ -231,7 +232,33 @@ class AuthController {
         });
       }
 
-      // Reset login attempts on successful login
+      // Check if MFA is enabled (Mandatory for all active users)
+      if (user.status === 'active') {
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Save OTP and expiry (10 minutes)
+        await User.updateOne({ _id: user._id }, {
+          $set: {
+            'security.otp': otp,
+            'security.otpExpires': Date.now() + 10 * 60 * 1000
+          }
+        });
+
+        // Send OTP via email
+        await sendOTP(user.email, otp);
+
+        return res.json({
+          success: true,
+          mfaRequired: true,
+          message: 'MFA code sent to your email',
+          data: {
+            email: user.email
+          }
+        });
+      }
+
+      // Reset login attempts on successful login (fallback if status not active)
       if (user.security.loginAttempts > 0) {
         user.security.loginAttempts = 0;
         user.security.lockUntil = undefined;
@@ -289,6 +316,99 @@ class AuthController {
         message: 'Login failed',
         code: 'LOGIN_ERROR'
       });
+    }
+  }
+
+  // Verify MFA OTP
+  static async verifyOTP(req, res) {
+    try {
+      const { email, otp } = req.body;
+
+      if (!email || !otp) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email and OTP are required'
+        });
+      }
+
+      const user = await User.findOne({ email: email.toLowerCase() })
+        .select('+security.otp +security.otpExpires');
+
+      if (!user || !user.security.otp) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid OTP request'
+        });
+      }
+
+      // Check expiry
+      if (user.security.otpExpires < Date.now()) {
+        return res.status(401).json({
+          success: false,
+          message: 'OTP has expired'
+        });
+      }
+
+      // Verify OTP
+      if (user.security.otp !== otp) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid OTP'
+        });
+      }
+
+      // Success - reset OTP and login
+      await User.updateOne({ _id: user._id }, {
+        $unset: {
+          'security.otp': 1,
+          'security.otpExpires': 1
+        },
+        $set: {
+          'security.lastLogin': new Date(),
+          'security.loginAttempts': 0
+        }
+      });
+
+      const accessToken = user.generateAuthToken();
+      const refreshToken = user.generateRefreshToken();
+
+      // Log successful MFA login
+      try {
+        await AuditLog.createLog({
+          eventType: 'LOGIN',
+          userId: user._id,
+          userRole: user.role,
+          resourceType: 'user',
+          resourceId: user._id,
+          action: 'MFA_VERIFIED_LOGIN',
+          description: `User logged in with MFA: ${user.email}`,
+          requestDetails: {
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+            endpoint: req.originalUrl,
+            method: req.method,
+            requestId: req.requestId || uuidv4()
+          }
+        });
+      } catch (logError) {
+        console.warn('Audit log failed during MFA login:', logError.message);
+      }
+
+      res.json({
+        success: true,
+        message: 'MFA verification successful',
+        data: {
+          user: user.toJSON(),
+          tokens: {
+            accessToken,
+            refreshToken,
+            expiresIn: process.env.JWT_EXPIRES_IN || '15m'
+          }
+        }
+      });
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      res.status(500).json({ success: false, message: 'Verification failed' });
     }
   }
 

@@ -101,10 +101,18 @@ const userSchema = new mongoose.Schema({
     },
     twoFactorEnabled: {
       type: Boolean,
-      default: false
+      default: true
     },
     twoFactorSecret: {
       type: String,
+      select: false
+    },
+    otp: {
+      type: String,
+      select: false
+    },
+    otpExpires: {
+      type: Date,
       select: false
     }
   },

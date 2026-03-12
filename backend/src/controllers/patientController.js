@@ -647,6 +647,8 @@ class PatientController {
 
       // Search patients
       const skip = (page - 1) * limit;
+      
+      // If q is an ID, we might want to handle it specially or just rely on the model search
       const patients = await Patient.searchPatients(q)
         .skip(skip)
         .limit(parseInt(limit))

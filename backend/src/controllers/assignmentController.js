@@ -95,8 +95,16 @@ class AssignmentController {
         });
       }
 
-      // Only receptionist and administrators can fetch users by role
-      if (!['receptionist', 'administrator'].includes(userRole)) {
+      // Role-based access control
+      if (userRole === 'patient') {
+        // Patients can only fetch doctors, lab technicians, and pharmacists
+        if (!['doctor', 'lab_technician', 'pharmacist'].includes(role)) {
+          return res.status(403).json({
+            success: false,
+            message: 'Patients can only fetch healthcare providers'
+          });
+        }
+      } else if (!['receptionist', 'administrator'].includes(userRole)) {
         return res.status(403).json({
           success: false,
           message: 'Insufficient permissions'
@@ -211,6 +219,30 @@ class AssignmentController {
         patientDoc = await Patient.findOne({ userId: patientId });
       }
 
+      // If patient document doesn't exist, check if User exists with role 'patient'
+      // and create a Patient document on the fly
+      if (!patientDoc) {
+        const user = await User.findById(patientId);
+        if (user && user.role === 'patient') {
+          try {
+            patientDoc = new Patient({
+              userId: user._id,
+              demographics: {
+                dateOfBirth: user.profile.dateOfBirth || new Date(),
+                gender: 'prefer_not_to_say'
+              }
+            });
+            await patientDoc.save();
+          } catch (createError) {
+            console.error('Failed to create patient document on the fly:', createError);
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to initialize patient record'
+            });
+          }
+        }
+      }
+
       if (!patientDoc) {
         return res.status(400).json({
           success: false,
@@ -297,25 +329,36 @@ class AssignmentController {
       const userRole = req.user.role;
 
       // Verify patient exists
-      const patient = await User.findById(patientId);
-      if (!patient) {
+      const patientUser = await User.findById(patientId);
+      if (!patientUser) {
         return res.status(404).json({
           success: false,
-          message: 'Patient not found'
+          message: 'Patient user not found'
         });
       }
 
-      // Patient can only view their own assignments, doctors can view all
-      if (userId.toString() !== patientId && userRole !== 'doctor' && userRole !== 'administrator') {
+      // Patient can only view their own assignments, doctors/receptionists/admins can view all
+      if (userId.toString() !== patientId && !['doctor', 'receptionist', 'administrator'].includes(userRole)) {
         return res.status(403).json({
           success: false,
           message: 'Insufficient permissions'
         });
       }
 
-      // Get assignments
+      // Find the Patient document for this user
+      const patientDoc = await Patient.findOne({ userId: patientId });
+      
+      // If no patient doc, they definitely have no assignments
+      if (!patientDoc) {
+        return res.json({
+          success: true,
+          data: []
+        });
+      }
+
+      // Get assignments using the Patient document _id
       const assignments = await Assignment.find({
-        patientId,
+        patientId: patientDoc._id,
         status: 'active',
         deletedAt: { $exists: false }
       })

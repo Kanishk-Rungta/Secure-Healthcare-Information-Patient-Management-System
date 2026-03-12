@@ -38,6 +38,7 @@ const consentSchema = new mongoose.Schema({
       'medications',
       'lab_results',
       'prescriptions',
+      'billing',
       'all_records'
     ],
     required: true
@@ -261,8 +262,8 @@ consentSchema.methods.enableEmergencyAccess = function(reason, justification, ap
 // Static methods
 consentSchema.statics.findValidConsent = function(patientId, recipientId, dataType) {
   return this.findOne({
-    patientId,
-    recipientId,
+    patientId: new mongoose.Types.ObjectId(patientId),
+    recipientId: new mongoose.Types.ObjectId(recipientId),
     dataType,
     status: 'active',
     validFrom: { $lte: new Date() },
@@ -272,7 +273,7 @@ consentSchema.statics.findValidConsent = function(patientId, recipientId, dataTy
 
 consentSchema.statics.findPatientConsents = function(patientId, status = 'active') {
   return this.find({ 
-    patientId, 
+    patientId: new mongoose.Types.ObjectId(patientId), 
     status,
     validUntil: { $gte: new Date() }
   }).populate('recipientId', 'profile.firstName profile.lastName email role');
@@ -280,10 +281,16 @@ consentSchema.statics.findPatientConsents = function(patientId, status = 'active
 
 consentSchema.statics.findRecipientConsents = function(recipientId, status = 'active') {
   return this.find({ 
-    recipientId, 
+    recipientId: new mongoose.Types.ObjectId(recipientId), 
     status,
     validUntil: { $gte: new Date() }
-  }).populate('patientId', 'demographics');
+  }).populate({
+    path: 'patientId',
+    populate: {
+      path: 'userId',
+      select: 'profile email'
+    }
+  });
 };
 
 consentSchema.statics.findExpiredConsents = function() {
@@ -294,9 +301,9 @@ consentSchema.statics.findExpiredConsents = function() {
 };
 
 consentSchema.statics.checkConsent = async function(patientId, recipientId, dataType, purpose) {
-  const consent = await this.findOne({
-    patientId,
-    recipientId,
+  const query = {
+    patientId: new mongoose.Types.ObjectId(patientId),
+    recipientId: new mongoose.Types.ObjectId(recipientId),
     $or: [
       { dataType },
       { dataType: 'all_records' }
@@ -304,22 +311,32 @@ consentSchema.statics.checkConsent = async function(patientId, recipientId, data
     status: 'active',
     validFrom: { $lte: new Date() },
     validUntil: { $gte: new Date() }
+  };
+  
+  const consents = await this.find(query);
+  
+  if (!consents || consents.length === 0) return false;
+  
+  // Check if any consent matches the purpose
+  // 'treatment' purpose is considered broad and covers 'diagnosis', 'follow_up', etc.
+  return consents.some(consent => {
+    // Check purpose limitation
+    const purposeMatch = 
+      consent.purpose === purpose || 
+      consent.purpose === 'treatment' || 
+      (purpose === 'diagnosis' && consent.purpose === 'diagnosis') ||
+      (purpose === 'billing' && consent.purpose === 'billing');
+
+    if (!purposeMatch) return false;
+    
+    // Check access limitations
+    if (consent.limitations.maxAccessCount && 
+        consent.limitations.accessCount >= consent.limitations.maxAccessCount) {
+      return false;
+    }
+    
+    return true;
   });
-  
-  if (!consent) return false;
-  
-  // Check purpose limitation
-  if (consent.purpose !== purpose && consent.purpose !== 'treatment') {
-    return false;
-  }
-  
-  // Check access limitations
-  if (consent.limitations.maxAccessCount && 
-      consent.limitations.accessCount >= consent.limitations.maxAccessCount) {
-    return false;
-  }
-  
-  return true;
 };
 
 // Middleware for automatic expiration

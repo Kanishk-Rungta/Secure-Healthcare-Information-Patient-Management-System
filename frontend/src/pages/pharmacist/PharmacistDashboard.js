@@ -38,12 +38,18 @@ const PharmacistDashboard = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        const consentedPatients = data.data.map(consent => ({
-          _id: consent.patientId._id,
-          profile: consent.patientId.userId.profile,
-          consentId: consent._id,
-          dataType: consent.dataType
-        }));
+        // Access consents from the data object
+        const consents = data.data?.consents || (Array.isArray(data.data) ? data.data : []);
+        const consentedPatients = consents.map(consent => {
+          if (!consent.patientId) return null;
+          return {
+            _id: consent.patientId._id,
+            profile: consent.patientId.userId?.profile || {},
+            email: consent.patientId.userId?.email || '',
+            consentId: consent._id,
+            dataType: consent.dataType
+          };
+        }).filter(Boolean);
         setPatients(consentedPatients);
       }
     } catch (error) {

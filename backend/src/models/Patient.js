@@ -24,7 +24,8 @@ const patientSchema = new mongoose.Schema({
     gender: {
       type: String,
       enum: ['male', 'female', 'other', 'prefer_not_to_say'],
-      required: true
+      required: true,
+      default: 'prefer_not_to_say'
     },
     bloodType: {
       type: String,
@@ -38,17 +39,17 @@ const patientSchema = new mongoose.Schema({
     emergencyContact: {
       name: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       },
       relationship: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       },
       phone: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       }
     }
@@ -261,6 +262,9 @@ patientSchema.index({ 'medicalHistory.conditions.diagnosedBy': 1 });
 
 // Virtual for age
 patientSchema.virtual('demographics.age').get(function() {
+  if (!this.demographics || !this.demographics.dateOfBirth) {
+    return null;
+  }
   const today = new Date();
   const birthDate = this.demographics.dateOfBirth;
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -328,15 +332,25 @@ patientSchema.statics.findActivePatients = function() {
 
 patientSchema.statics.searchPatients = function(searchTerm) {
   const regex = new RegExp(searchTerm, 'i');
+  
+  // Check if searchTerm is a valid ObjectId
+  const isObjectId = mongoose.Types.ObjectId.isValid(searchTerm);
+  
+  const searchCriteria = [
+    { 'demographics.emergencyContact.name': regex },
+    { 'medicalHistory.conditions.name': regex },
+    { 'medicalHistory.medications.name': regex }
+  ];
+
+  if (isObjectId) {
+    searchCriteria.push({ userId: searchTerm });
+  }
+
   return this.find({
     $and: [
       { deletedAt: { $exists: false } },
       {
-        $or: [
-          { 'demographics.emergencyContact.name': regex },
-          { 'medicalHistory.conditions.name': regex },
-          { 'medicalHistory.medications.name': regex }
-        ]
+        $or: searchCriteria
       }
     ]
   });

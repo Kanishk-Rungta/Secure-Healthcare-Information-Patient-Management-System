@@ -34,8 +34,8 @@ const AuditLogs = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setLogs(data.data.logs);
-        setPagination(data.data.pagination);
+        setLogs(data.data?.logs || []);
+        setPagination(data.data?.pagination || {});
       }
     } catch (error) {
       console.error('Error fetching logs:', error);
@@ -53,6 +53,13 @@ const AuditLogs = () => {
           </Link>
           <h1 className="text-xl font-bold">System Audit Logs</h1>
         </div>
+        <button 
+          onClick={fetchLogs}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh Logs
+        </button>
       </nav>
 
       <main className="p-8 max-w-7xl mx-auto">
@@ -77,7 +84,7 @@ const AuditLogs = () => {
             <select 
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               value={filters.userRole}
-              onChange={e => setFilters({...filters, userRole: e.target.value})}
+              onChange={e => { setFilters({...filters, userRole: e.target.value}); setPage(1); }}
             >
               <option value="">All Roles</option>
               <option value="administrator">Admin</option>
@@ -88,9 +95,46 @@ const AuditLogs = () => {
               <option value="pharmacist">Pharmacist</option>
             </select>
           </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Resource Type</label>
+            <select 
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              value={filters.resourceType}
+              onChange={e => { setFilters({...filters, resourceType: e.target.value}); setPage(1); }}
+            >
+              <option value="">All Resources</option>
+              <option value="user">User</option>
+              <option value="patient">Patient</option>
+              <option value="medical_record">Medical Record</option>
+              <option value="consent">Consent</option>
+              <option value="complaint">Complaint</option>
+              <option value="assignment">Assignment</option>
+              <option value="system">System</option>
+            </select>
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Resource Type</label>
+            <select 
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              value={filters.resourceType}
+              onChange={e => setFilters({...filters, resourceType: e.target.value})}
+            >
+              <option value="">All Resources</option>
+              <option value="user">User</option>
+              <option value="patient">Patient</option>
+              <option value="medical_record">Medical Record</option>
+              <option value="consent">Consent</option>
+              <option value="complaint">Complaint</option>
+              <option value="assignment">Assignment</option>
+              <option value="system">System</option>
+            </select>
+          </div>
           <button 
-            onClick={() => {setFilters({eventType: '', userRole: '', resourceType: ''}); setPage(1);}}
-            className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800"
+            onClick={() => {
+              setFilters({eventType: '', userRole: '', resourceType: ''});
+              setPage(1);
+            }}
+            className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-rose-600 transition-colors"
           >
             Clear Filters
           </button>

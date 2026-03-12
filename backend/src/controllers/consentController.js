@@ -283,7 +283,7 @@ class ConsentController {
       // Verify permissions
       if (userRole === 'patient') {
         const patient = await Patient.findOne({ userId });
-        if (!patient || patient.patientId.toString() !== consent.patientId.toString()) {
+        if (!patient || patient._id.toString() !== consent.patientId.toString()) {
           return res.status(403).json({
             success: false,
             message: 'Only patients can revoke their own consent',
@@ -366,7 +366,7 @@ class ConsentController {
       // Verify permissions
       if (userRole === 'patient') {
         const patient = await Patient.findOne({ userId });
-        if (!patient || patient.patientId.toString() !== consent.patientId.toString()) {
+        if (!patient || patient._id.toString() !== consent.patientId.toString()) {
           return res.status(403).json({
             success: false,
             message: 'Only patients can update their own consent',

@@ -37,13 +37,18 @@ const LabTechnicianDashboard = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        // Consents are where we are the recipient
-        const consentedPatients = data.data.map(consent => ({
-          _id: consent.patientId._id,
-          profile: consent.patientId.userId.profile,
-          consentId: consent._id,
-          dataType: consent.dataType
-        }));
+        // Access consents from the data object
+        const consents = data.data?.consents || data.data || [];
+        const consentedPatients = consents.map(consent => {
+          if (!consent.patientId) return null;
+          return {
+            _id: consent.patientId._id,
+            profile: consent.patientId.userId?.profile || {},
+            email: consent.patientId.userId?.email || '',
+            consentId: consent._id,
+            dataType: consent.dataType
+          };
+        }).filter(Boolean);
         setPatients(consentedPatients);
       }
     } catch (error) {
@@ -126,12 +131,16 @@ const LabTechnicianDashboard = () => {
               ) : (
                 patients.map(patient => (
                   <div 
-                    key={patient._id} 
+                    key={patient.consentId} 
                     onClick={() => setSelectedPatient(patient)}
-                    className={`p-3 rounded-lg cursor-pointer border transition-all ${selectedPatient?._id === patient._id ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-300'}`}
+                    className={`p-3 rounded-lg cursor-pointer border transition-all ${selectedPatient?.consentId === patient.consentId ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-300'}`}
                   >
-                    <p className="font-medium text-slate-900">{patient.profile.firstName} {patient.profile.lastName}</p>
-                    <p className="text-xs text-slate-500">Access: {patient.dataType}</p>
+                    <p className="font-medium text-slate-900">
+                      {patient.profile?.firstName || 'Unknown'} {patient.profile?.lastName || 'Patient'}
+                    </p>
+                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-tight mt-1">
+                      Access: {patient.dataType?.replace('_', ' ')}
+                    </p>
                   </div>
                 ))
               )}

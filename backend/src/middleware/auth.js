@@ -199,18 +199,24 @@ const hasPermission = (permission) => {
         lab_technician: [
           'view_patient_demographics',
           'create_lab_results',
-          'update_lab_results'
+          'update_lab_results',
+          'create_medical_records'
         ],
         pharmacist: [
           'view_prescriptions',
           'manage_medications',
-          'view_patient_allergies'
+          'view_patient_allergies',
+          'create_medical_records',
+          'create_billing',
+          'view_billing'
         ],
         administrator: [
           'manage_users',
           'view_audit_logs',
           'manage_system',
-          'view_all_records'
+          'view_all_records',
+          'create_billing',
+          'view_billing'
         ]
       };
       

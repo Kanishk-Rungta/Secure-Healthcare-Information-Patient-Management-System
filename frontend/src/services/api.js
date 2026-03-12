@@ -157,6 +157,7 @@ const generateRequestId = () => {
 // API service functions
 export const authAPI = {
   login: (credentials, config = {}) => apiClient.post('/auth/login', credentials, config),
+  verifyOTP: (otpData, config = {}) => apiClient.post('/auth/verify-otp', otpData, config),
   register: (userData, config = {}) => apiClient.post('/auth/register', userData, config),
   logout: (config = {}) => apiClient.post('/auth/logout', null, config),
   refreshToken: (tokens, config = {}) => apiClient.post('/auth/refresh-token', tokens, config),

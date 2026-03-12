@@ -2,7 +2,6 @@
   "buildCommand": "npm install --prefix ./backend && npm install --prefix ./frontend && cd frontend && npm run build",
   "installCommand": "npm install --prefix ./backend && npm install --prefix ./frontend",
   "framework": "nextjs",
-  "nodeVersion": "24.x",
   "regions": ["iad"],
   "env": {
     "NODE_ENV": "production"

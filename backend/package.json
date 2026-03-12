@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "build": "echo 'Build complete'",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
@@ -40,7 +41,7 @@
     "supertest": "^6.3.3"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "18.x"
   },
   "keywords": [
     "healthcare",

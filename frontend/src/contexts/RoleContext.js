@@ -49,12 +49,16 @@ const ROLE_PERMISSIONS = {
     'create_lab_results',
     'update_lab_results',
     'search_patients',
+    'create_medical_records',
   ],
   [ROLES.PHARMACIST]: [
     'view_prescriptions',
     'manage_medications',
     'view_patient_allergies',
     'search_patients',
+    'create_medical_records',
+    'create_billing',
+    'view_billing',
   ],
   [ROLES.ADMINISTRATOR]: [
     'manage_users',
@@ -64,6 +68,8 @@ const ROLE_PERMISSIONS = {
     'manage_consents',
     'emergency_access',
     'view_system_stats',
+    'create_billing',
+    'view_billing',
   ],
 };
 

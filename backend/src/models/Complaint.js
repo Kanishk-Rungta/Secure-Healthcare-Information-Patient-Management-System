@@ -9,7 +9,7 @@ const complaintSchema = new mongoose.Schema({
   // Patient reference
   patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Patient',
+    ref: 'User',
     required: true,
     index: true
   },

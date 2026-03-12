@@ -8,7 +8,16 @@ const { v4: uuidv4 } = require('uuid');
  * Implements secure token validation and user session management
  */
 
-// Extract JWT token from request
+/**
+ * Extracts the JWT token from an incoming HTTP request.
+ * 
+ * It checks multiple potential sources for the token in the following order:
+ * 1. The `Authorization` header using the Bearer schema.
+ * 2. The `accessToken` cookie, acting as a secure fallback.
+ * 
+ * @param {Object} req - The standard Express request object.
+ * @returns {string|null} The extracted token string, or null if not found.
+ */
 const extractToken = (req) => {
   let token = null;
   
@@ -26,7 +35,17 @@ const extractToken = (req) => {
   return token;
 };
 
-// Verify JWT token
+/**
+ * Synchronously verifies the provided JSON Web Token.
+ * 
+ * This function utilizes the secret configured in the environment (`JWT_SECRET`).
+ * It differentiates between specific token failures (like expiration vs. bad signatures)
+ * to throw more meaningful error messages for the caller.
+ * 
+ * @param {string} token - The raw JWT string to verify.
+ * @returns {Object} The decoded payload if verification succeeds.
+ * @throws {Error} Throws specific error messages based on the JWT failure reason.
+ */
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
@@ -41,7 +60,23 @@ const verifyToken = (token) => {
   }
 };
 
-// Main authentication middleware
+/**
+ * Primary Authentication Middleware Handlers
+ * 
+ * This asynchronous middleware function enforces authentication on protected routes.
+ * It strictly requires a valid JWT, parses it to identify the user,
+ * and validates the user's current account standing (active status, lock status)
+ * before allowing the request to proceed to the main controller logic.
+ * 
+ * It also attaches essential metadata to the request for downstream consumption:
+ * - `req.user`: The fully hydrated user document.
+ * - `req.token`: The raw JWT string.
+ * - `req.requestId`: A unique identifier for audit tracking.
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ */
 const authenticate = async (req, res, next) => {
   try {
     const token = extractToken(req);
@@ -199,18 +234,24 @@ const hasPermission = (permission) => {
         lab_technician: [
           'view_patient_demographics',
           'create_lab_results',
-          'update_lab_results'
+          'update_lab_results',
+          'create_medical_records'
         ],
         pharmacist: [
           'view_prescriptions',
           'manage_medications',
-          'view_patient_allergies'
+          'view_patient_allergies',
+          'create_medical_records',
+          'create_billing',
+          'view_billing'
         ],
         administrator: [
           'manage_users',
           'view_audit_logs',
           'manage_system',
-          'view_all_records'
+          'view_all_records',
+          'create_billing',
+          'view_billing'
         ]
       };
       

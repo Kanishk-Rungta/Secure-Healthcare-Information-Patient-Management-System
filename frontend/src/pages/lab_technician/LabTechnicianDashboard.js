@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}`;
+
 const LabTechnicianDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -29,7 +31,7 @@ const LabTechnicianDashboard = () => {
   const fetchConsentedPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/consent/my-consents', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/my-consents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -37,13 +39,18 @@ const LabTechnicianDashboard = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        // Consents are where we are the recipient
-        const consentedPatients = data.data.map(consent => ({
-          _id: consent.patientId._id,
-          profile: consent.patientId.userId.profile,
-          consentId: consent._id,
-          dataType: consent.dataType
-        }));
+        // Access consents from the data object
+        const consents = data.data?.consents || data.data || [];
+        const consentedPatients = consents.map(consent => {
+          if (!consent.patientId) return null;
+          return {
+            _id: consent.patientId._id,
+            profile: consent.patientId.userId?.profile || {},
+            email: consent.patientId.userId?.email || '',
+            consentId: consent._id,
+            dataType: consent.dataType
+          };
+        }).filter(Boolean);
         setPatients(consentedPatients);
       }
     } catch (error) {
@@ -59,7 +66,7 @@ const LabTechnicianDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${selectedPatient._id}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${selectedPatient._id}/medical-records`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -128,12 +135,16 @@ const LabTechnicianDashboard = () => {
               ) : (
                 patients.map(patient => (
                   <div 
-                    key={patient._id} 
+                    key={patient.consentId} 
                     onClick={() => setSelectedPatient(patient)}
-                    className={`p-3 rounded-lg cursor-pointer border transition-all ${selectedPatient?._id === patient._id ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-300'}`}
+                    className={`p-3 rounded-lg cursor-pointer border transition-all ${selectedPatient?.consentId === patient.consentId ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-300'}`}
                   >
-                    <p className="font-medium text-slate-900">{patient.profile.firstName} {patient.profile.lastName}</p>
-                    <p className="text-xs text-slate-500">Access: {patient.dataType}</p>
+                    <p className="font-medium text-slate-900">
+                      {patient.profile?.firstName || 'Unknown'} {patient.profile?.lastName || 'Patient'}
+                    </p>
+                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-tight mt-1">
+                      Access: {patient.dataType?.replace('_', ' ')}
+                    </p>
                   </div>
                 ))
               )}

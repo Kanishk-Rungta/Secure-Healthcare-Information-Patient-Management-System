@@ -77,15 +77,15 @@ const medicalRecordSchema = new mongoose.Schema({
     prescription: {
       medicationName: {
         type: String,
-        required: true
+        required: function() { return this.recordType === 'prescription'; }
       },
       dosage: {
         type: String,
-        required: true
+        required: function() { return this.recordType === 'prescription'; }
       },
       frequency: {
         type: String,
-        required: true
+        required: function() { return this.recordType === 'prescription'; }
       },
       route: {
         type: String,
@@ -101,7 +101,7 @@ const medicalRecordSchema = new mongoose.Schema({
     labResult: {
       testType: {
         type: String,
-        required: true
+        required: function() { return this.recordType === 'lab_result'; }
       },
       specimenType: String,
       collectionDate: Date,
@@ -456,6 +456,8 @@ medicalRecordSchema.pre(['remove', 'deleteOne'], function(next) {
 // Middleware for automatic BMI calculation
 medicalRecordSchema.pre('save', function(next) {
   if (this.recordType === 'vital_signs' && 
+      this.content && 
+      this.content.vitalSigns && 
       this.content.vitalSigns.height && 
       this.content.vitalSigns.weight) {
     

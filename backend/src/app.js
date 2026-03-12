@@ -22,6 +22,14 @@ const adminRoutes = require('./routes/admin');
 /**
  * Main Application - Secure healthcare system entry point
  * Implements comprehensive security middleware and error handling
+ * 
+ * This module sets up the initial Express server configuration,
+ * handles global error catching, injects required middleware,
+ * manages global routes like the home API endpoint and health check,
+ * and sets up database connections before fully starting the server.
+ * 
+ * It ensures required secrets for JWT authentication exist, either by checking 
+ * the environment variables or creating fallback secrets in development.
  */
 
 const app = express();
@@ -56,17 +64,19 @@ const ensureJwtSecrets = () => {
 
 ensureJwtSecrets();
 
-// Trust proxy for accurate IP addresses
+// Trust proxy for accurate IP addresses (important for rate limiting and auditing)
 app.set('trust proxy', 1);
 
-// Security middleware
+// Security middleware base configuration
+// Provides request IDs for easier tracing in logs
+app.use(requestId);
+
+// Request logging - MUST BE EARLY
+app.use(requestLogger);
+
 app.use(helmetConfig);
 app.use(cors(corsConfig));
 app.use(securityHeaders);
-app.use(requestId);
-
-// Request logging
-app.use(requestLogger);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -80,6 +90,18 @@ app.use(compression());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// Root endpoint - provides basic API information
+app.get('/', (req, res) => {
+  // Return standard health and version metadata for the base route
+  res.status(200).json({
+    success: true,
+    message: 'Secure Healthcare Information System API',
+    status: 'running',
+    documentation: '/api',
+    health: '/health'
+  });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {

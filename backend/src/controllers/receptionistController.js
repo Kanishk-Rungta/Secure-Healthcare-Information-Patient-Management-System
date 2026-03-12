@@ -32,6 +32,31 @@ class ReceptionistController {
         patient = await Patient.findOne({ userId: patientId });
       }
 
+      // If patient document still doesn't exist, check if User exists with role 'patient'
+      // and create a Patient document on the fly
+      if (!patient) {
+        const user = await User.findById(patientId);
+        if (user && user.role === 'patient') {
+          try {
+            patient = new Patient({
+              userId: user._id,
+              demographics: {
+                dateOfBirth: user.profile.dateOfBirth || new Date(),
+                gender: 'prefer_not_to_say' // Default as specified in model
+              }
+            });
+            await patient.save();
+          } catch (createError) {
+            console.error('Failed to create patient document on the fly:', createError);
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to initialize patient record',
+              code: 'PATIENT_INIT_ERROR'
+            });
+          }
+        }
+      }
+
       if (!patient) {
         return res.status(404).json({
           success: false,
@@ -57,7 +82,7 @@ class ReceptionistController {
 
       // Create new complaint
       const complaint = new Complaint({
-        patientId: actualPatientId,
+        patientId, // This is the User ID from the request
         assignedDoctorId,
         receptionistId: actualReceptionistId,
         description,
@@ -68,7 +93,7 @@ class ReceptionistController {
       await complaint.save();
 
       // Populate references
-      await complaint.populate('patientId', 'userId');
+      await complaint.populate('patientId', 'profile.firstName profile.lastName email');
       await complaint.populate('assignedDoctorId', 'profile.firstName profile.lastName email');
       await complaint.populate('receptionistId', 'profile.firstName profile.lastName email');
 
@@ -145,7 +170,7 @@ class ReceptionistController {
       // Administrators can view all complaints
 
       const complaints = await Complaint.find(filter)
-        .populate('patientId', 'userId')
+        .populate('patientId', 'profile.firstName profile.lastName email')
         .populate('assignedDoctorId', 'profile.firstName profile.lastName email')
         .populate('receptionistId', 'profile.firstName profile.lastName email')
         .populate('resolvedBy', 'profile.firstName profile.lastName email')
@@ -195,7 +220,7 @@ class ReceptionistController {
       const userRole = req.user.role;
 
       const complaint = await Complaint.findById(complaintId)
-        .populate('patientId', 'userId')
+        .populate('patientId', 'profile.firstName profile.lastName email')
         .populate('assignedDoctorId', 'profile.firstName profile.lastName email')
         .populate('receptionistId', 'profile.firstName profile.lastName email')
         .populate('resolvedBy', 'profile.firstName profile.lastName email');
@@ -307,7 +332,7 @@ class ReceptionistController {
         console.warn('Audit log failed during complaint status update:', logError.message);
       }
 
-      await complaint.populate('patientId', 'userId');
+      await complaint.populate('patientId', 'profile.firstName profile.lastName email');
       await complaint.populate('assignedDoctorId', 'profile.firstName profile.lastName email');
       await complaint.populate('receptionistId', 'profile.firstName profile.lastName email');
       await complaint.populate('resolvedBy', 'profile.firstName profile.lastName email');

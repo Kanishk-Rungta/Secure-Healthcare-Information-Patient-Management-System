@@ -43,7 +43,7 @@ const ReceptionistDashboard = () => {
   const fetchPatients = async (searchTerm = '') => {
     try {
       const token = localStorage.getItem('accessToken');
-      const url = new URL('http://localhost:5000/api/assignments/users/patient');
+      const url = new URL(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/patient`);
       url.searchParams.append('limit', '100');
       if (searchTerm) url.searchParams.append('search', searchTerm);
 
@@ -66,7 +66,7 @@ const ReceptionistDashboard = () => {
   const fetchDoctors = async (searchTerm = '') => {
     try {
       const token = localStorage.getItem('accessToken');
-      const url = new URL('http://localhost:5000/api/assignments/users/doctor');
+      const url = new URL(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/doctor`);
       url.searchParams.append('limit', '100');
       if (searchTerm) url.searchParams.append('search', searchTerm);
 
@@ -89,7 +89,7 @@ const ReceptionistDashboard = () => {
   const fetchAssignments = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/assignments', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ const ReceptionistDashboard = () => {
   const fetchComplaints = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/receptionist/complaints', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/complaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -132,7 +132,7 @@ const ReceptionistDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/receptionist/register-complaint', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/register-complaint`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -172,7 +172,7 @@ const ReceptionistDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/assignments', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -207,7 +207,7 @@ const ReceptionistDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/${assignmentId}/end`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/${assignmentId}/end`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

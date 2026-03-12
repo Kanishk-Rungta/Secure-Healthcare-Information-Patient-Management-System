@@ -8,7 +8,9 @@ const PatientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [consents, setConsents] = useState([]);
+  const [complaints, setComplaints] = useState([]);
   const [assignedDoctors, setAssignedDoctors] = useState([]);
+  const [allDoctors, setAllDoctors] = useState([]);
   const [labTechnicians, setLabTechnicians] = useState([]);
   const [pharmacists, setPharmacists] = useState([]);
   const [activeTab, setActiveTab] = useState('records');
@@ -31,15 +33,35 @@ const PatientDashboard = () => {
   useEffect(() => {
     if (user) {
       getPatientId();
+      fetchDoctors();
       fetchLabTechnicians();
       fetchPharmacists();
+      fetchComplaints();
     }
   }, [user]);
+
+  const fetchDoctors = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/doctor?limit=50`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAllDoctors(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
 
   const getPatientId = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/my-profile`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/my-profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -61,10 +83,28 @@ const PatientDashboard = () => {
     }
   };
 
+  const fetchComplaints = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/complaints`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setComplaints(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching complaints:', error);
+    }
+  };
+
   const fetchLabTechnicians = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/lab_technician?limit=50`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/lab_technician?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -82,7 +122,7 @@ const PatientDashboard = () => {
   const fetchPharmacists = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/pharmacist?limit=50`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/pharmacist?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -100,7 +140,7 @@ const PatientDashboard = () => {
   const fetchMedicalRecords = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${pId || patientId}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${pId || patientId}/medical-records`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +149,8 @@ const PatientDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setMedicalRecords(data.data || []);
+        // Access records from the data object
+        setMedicalRecords(data.data?.records || data.data || []);
       }
     } catch (error) {
       console.error('Error fetching medical records:', error);
@@ -119,7 +160,7 @@ const PatientDashboard = () => {
   const fetchConsents = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/consent/patients/${pId || patientId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/patients/${pId || patientId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -128,7 +169,8 @@ const PatientDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setConsents(data.data || []);
+        // Access consents from the data object
+        setConsents(data.data?.consents || data.data || []);
       }
     } catch (error) {
       console.error('Error fetching consents:', error);
@@ -138,7 +180,7 @@ const PatientDashboard = () => {
   const fetchAssignedDoctors = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/patient/${pId || patientId}/doctors`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/patient/${pId || patientId}/doctors`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -169,7 +211,7 @@ const PatientDashboard = () => {
     try {
       const token = localStorage.getItem('accessToken');
 
-      const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/patients/${patientId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -202,7 +244,7 @@ const PatientDashboard = () => {
   const revokeConsent = async (consentId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/consent/${consentId}/revoke`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/${consentId}/revoke`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -292,6 +334,53 @@ const PatientDashboard = () => {
             </p>
           </div>
 
+          {/* Active Complaints / Doctor Assignments Section */}
+          {complaints.filter(c => c.status !== 'resolved' && c.status !== 'closed').length > 0 && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wider mb-3">
+                Action Required: Pending Complaints
+              </h3>
+              <div className="space-y-3">
+                {complaints.filter(c => c.status !== 'resolved' && c.status !== 'closed').map(complaint => {
+                  const hasConsent = consents.some(c => 
+                    c.recipientId?._id === complaint.assignedDoctorId?._id && 
+                    c.status === 'active'
+                  );
+                  
+                  return (
+                    <div key={complaint._id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg border border-amber-100 shadow-sm">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          Complaint: {complaint.description}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Assigned Doctor: Dr. {complaint.assignedDoctorId?.profile?.firstName} {complaint.assignedDoctorId?.profile?.lastName}
+                        </p>
+                      </div>
+                      {!hasConsent ? (
+                        <button
+                          onClick={() => {
+                            setSelectedRecipient(complaint.assignedDoctorId?._id);
+                            setRecipientRole('doctor');
+                            setSelectedDataType('all_records');
+                            setShowConsentModal(true);
+                          }}
+                          className="w-full sm:w-auto bg-amber-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-amber-700 transition"
+                        >
+                          Grant Doctor Access
+                        </button>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                          Access Granted
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Tab Navigation */}
           <div className="border-b border-sky-200 mb-6">
             <nav className="-mb-px flex space-x-8">
@@ -305,15 +394,6 @@ const PatientDashboard = () => {
                 Medical Records
               </button>
               <button
-                onClick={() => setActiveTab('doctors')}
-                className={`py-3 px-1 border-b-2 text-sm ${activeTab === 'doctors'
-                    ? 'border-sky-700 text-sky-900 font-semibold'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-sky-300'
-                  }`}
-              >
-                Healthcare Providers
-              </button>
-              <button
                 onClick={() => setActiveTab('consent')}
                 className={`py-3 px-1 border-b-2 text-sm ${activeTab === 'consent'
                     ? 'border-sky-700 text-sky-900 font-semibold'
@@ -321,8 +401,7 @@ const PatientDashboard = () => {
                   }`}
               >
                 Access Control
-              </button>
-            </nav>
+              </button>            </nav>
           </div>
 
         {/* Medical Records Tab */}
@@ -391,116 +470,27 @@ const PatientDashboard = () => {
             </div>
           )}
 
-        {/* My Providers Tab */}
-        {activeTab === 'doctors' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
-                  Assigned Doctors
-                </h3>
-                {assignedDoctors.length === 0 ? (
-                  <p className="text-sm text-slate-500">No doctors assigned yet.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {assignedDoctors.map((doctor) => (
-                      <div key={doctor._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h4 className="text-lg font-medium text-slate-900">Dr. {doctor.profile?.firstName} {doctor.profile?.lastName}</h4>
-                            <p className="text-sm text-slate-600">Specialization: {doctor.profile?.professionalInfo?.specialization}</p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedRecipient(doctor._id);
-                              setRecipientRole('doctor');
-                              setSelectedDataType('all_records');
-                              setShowConsentModal(true);
-                            }}
-                            className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
-                          >
-                            Grant Access
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
-                  Lab Technicians
-                </h3>
-                <div className="space-y-4">
-                  {labTechnicians.map((tech) => (
-                    <div key={tech._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-medium text-slate-900">{tech.profile?.firstName} {tech.profile?.lastName}</h4>
-                          <p className="text-sm text-slate-600">Department: {tech.profile?.professionalInfo?.department}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedRecipient(tech._id);
-                            setRecipientRole('lab_technician');
-                            setSelectedDataType('lab_results');
-                            setShowConsentModal(true);
-                          }}
-                          className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
-                        >
-                          Grant Access
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-sky-200 shadow-sm">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
-                  Pharmacists
-                </h3>
-                <div className="space-y-4">
-                  {pharmacists.map((ph) => (
-                    <div key={ph._id} className="border border-sky-200 rounded-lg p-4 bg-sky-50/40">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-medium text-slate-900">{ph.profile?.firstName} {ph.profile?.lastName}</h4>
-                          <p className="text-sm text-slate-600">Department: {ph.profile?.professionalInfo?.department}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedRecipient(ph._id);
-                            setRecipientRole('pharmacist');
-                            setSelectedDataType('prescriptions');
-                            setShowConsentModal(true);
-                          }}
-                          className="bg-sky-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-sky-700"
-                        >
-                          Grant Access
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Access Control Tab */}
         {activeTab === 'consent' && (
           <div>
             <div className="bg-white rounded-xl border border-sky-200 mb-6 shadow-sm">
               <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-semibold text-slate-900 mb-4">
-                  Existing Permissions
-                </h3>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg leading-6 font-semibold text-slate-900">
+                    Existing Permissions
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setSelectedRecipient('');
+                      setRecipientRole('doctor');
+                      setSelectedDataType('all_records');
+                      setShowConsentModal(true);
+                    }}
+                    className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-sky-700 transition shadow-sm"
+                  >
+                    + Grant New Permission
+                  </button>
+                </div>
 
                 {consents.length === 0 ? (
                   <p className="text-sm text-slate-500 text-center py-8">No active permissions found.</p>
@@ -578,7 +568,7 @@ const PatientDashboard = () => {
                       className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                     >
                       <option value="">Select a {recipientRole.replace('_', ' ')}...</option>
-                      {recipientRole === 'doctor' && assignedDoctors.map((d) => (
+                      {recipientRole === 'doctor' && allDoctors.map((d) => (
                         <option key={d._id} value={d._id}>Dr. {d.profile?.firstName} {d.profile?.lastName}</option>
                       ))}
                       {recipientRole === 'lab_technician' && labTechnicians.map((t) => (

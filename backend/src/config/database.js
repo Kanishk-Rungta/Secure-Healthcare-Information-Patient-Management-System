@@ -78,8 +78,9 @@ const connectDB = async () => {
         schema.pre('save', function (next) {
           const encryptedFields = schema.options.encryption.fields || [];
           encryptedFields.forEach(field => {
-            if (this[field]) {
-              this[field] = encryptField(this[field]);
+            const value = this.get(field);
+            if (value && typeof value === 'string') {
+              this.set(field, encryptField(value));
             }
           });
           next();
@@ -90,8 +91,14 @@ const connectDB = async () => {
           const decryptDoc = (doc) => {
             if (!doc) return doc;
             encryptedFields.forEach(field => {
-              if (doc[field]) {
-                doc[field] = decryptField(doc[field]);
+              const value = doc.get ? doc.get(field) : doc[field];
+              if (value && typeof value === 'object' && value.encrypted) {
+                const decrypted = decryptField(value);
+                if (doc.set) {
+                  doc.set(field, decrypted);
+                } else {
+                  doc[field] = decrypted;
+                }
               }
             });
             return doc;

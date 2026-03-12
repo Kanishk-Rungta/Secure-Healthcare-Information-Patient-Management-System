@@ -30,7 +30,7 @@ const PharmacistDashboard = () => {
   const fetchConsentedPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/consent/my-consents', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/my-consents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -38,12 +38,18 @@ const PharmacistDashboard = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        const consentedPatients = data.data.map(consent => ({
-          _id: consent.patientId._id,
-          profile: consent.patientId.userId.profile,
-          consentId: consent._id,
-          dataType: consent.dataType
-        }));
+        // Access consents from the data object
+        const consents = data.data?.consents || (Array.isArray(data.data) ? data.data : []);
+        const consentedPatients = consents.map(consent => {
+          if (!consent.patientId) return null;
+          return {
+            _id: consent.patientId._id,
+            profile: consent.patientId.userId?.profile || {},
+            email: consent.patientId.userId?.email || '',
+            consentId: consent._id,
+            dataType: consent.dataType
+          };
+        }).filter(Boolean);
         setPatients(consentedPatients);
       }
     } catch (error) {
@@ -54,7 +60,7 @@ const PharmacistDashboard = () => {
   const fetchPatientPrescriptions = async (patientId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${patientId}/medical-records?recordType=prescription`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${patientId}/medical-records?recordType=prescription`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -83,7 +89,7 @@ const PharmacistDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${selectedPatient._id}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${selectedPatient._id}/medical-records`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

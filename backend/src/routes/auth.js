@@ -23,6 +23,12 @@ router.post('/login',
   AuthController.login
 );
 
+router.post('/verify-otp',
+  sanitizeInput,
+  validateJSON,
+  AuthController.verifyOTP
+);
+
 router.post('/refresh-token',
   sanitizeInput,
   validateJSON,

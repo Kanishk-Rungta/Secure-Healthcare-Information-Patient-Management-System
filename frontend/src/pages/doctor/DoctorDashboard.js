@@ -9,14 +9,26 @@ const DoctorDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientDocId, setPatientDocId] = useState(null);
   const [activeTab, setActiveTab] = useState('complaints');
-  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
-  const [prescriptionData, setPrescriptionData] = useState({
-    medication: '',
+  const [showEntryModal, setShowEntryModal] = useState(false);
+  const [entryType, setEntryType] = useState('prescription');
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    // Prescription fields
+    medicationName: '',
     dosage: '',
     frequency: '',
     duration: '',
-    instructions: ''
+    instructions: '',
+    // Diagnosis fields
+    diagnosisName: '',
+    icd10Code: '',
+    severity: 'mild',
+    // Lab Recommendation fields
+    testType: '',
+    urgency: 'routine'
   });
 
   useEffect(() => {
@@ -39,7 +51,7 @@ const DoctorDashboard = () => {
   const fetchComplaints = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/doctor/complaints/${user._id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/complaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -58,7 +70,7 @@ const DoctorDashboard = () => {
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/doctor/${user._id}/patients`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/doctor/${user._id}/patients`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -67,17 +79,22 @@ const DoctorDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setPatients(data.data || []);
+        const patientList = data.data.map(assignment => ({
+          ...assignment.patientId,
+          assignmentId: assignment._id
+        }));
+        setPatients(patientList);
       }
     } catch (error) {
       console.error('Error fetching assigned patients:', error);
     }
   };
 
-  const fetchPatientRecords = async (patientId) => {
+  const fetchPatientDocId = async (userId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${patientId}/medical-records`, {
+      // Search for patient by user ID to get the medical Patient Document ID
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/search?q=${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -86,64 +103,186 @@ const DoctorDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setMedicalRecords(data.data || []);
+        const patient = data.data.patients.find(p => (p.userId?._id === userId || p.userId === userId));
+        if (patient) {
+          setPatientDocId(patient._id);
+          fetchPatientRecords(patient._id);
+          return patient._id;
+        }
       }
+      return null;
     } catch (error) {
-      console.error('Error fetching medical records:', error);
+      console.error('Error fetching patient doc ID:', error);
+      return null;
     }
   };
 
-  const createPrescription = async () => {
-    if (!selectedPatient || !prescriptionData.medication) {
-      alert('Please fill all required fields');
+  const fetchPatientRecords = async (pDocId) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${pDocId}/medical-records`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMedicalRecords(data.data?.records || []);
+      } else if (response.status === 403) {
+        // Explicitly set to null to indicate forbidden (no consent)
+        setMedicalRecords(null);
+      } else {
+        setMedicalRecords([]);
+      }
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+      setMedicalRecords([]);
+    }
+  };
+
+  const createMedicalRecord = async () => {
+    if (!patientDocId) {
+      alert('Error: No patient medical profile found. Please select a patient correctly.');
       return;
+    }
+
+    if (!formData.title.trim()) {
+      alert('Validation Error: Record title is required.');
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      alert('Validation Error: Clinical notes/description are required.');
+      return;
+    }
+
+    // Type-specific rigorous validation
+    if (entryType === 'prescription') {
+      if (!formData.medicationName.trim() || !formData.dosage.trim() || !formData.frequency.trim() || !formData.duration.trim()) {
+        alert('Validation Error: Please fill all prescription details: Medication Name, Dosage, Frequency, and Duration.');
+        return;
+      }
+    } else if (entryType === 'diagnosis') {
+      if (!formData.diagnosisName.trim()) {
+        alert('Validation Error: Diagnosis name is required.');
+        return;
+      }
+    } else if (entryType === 'lab_result') {
+      if (!formData.testType.trim()) {
+        alert('Validation Error: Test type is required for lab recommendations.');
+        return;
+      }
     }
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${selectedPatient._id}/medical-records`, {
+      
+      let content = {
+        title: formData.title.trim(),
+        description: formData.description.trim()
+      };
+
+      if (entryType === 'prescription') {
+        content.prescription = {
+          medicationName: formData.medicationName.trim(),
+          dosage: formData.dosage.trim(),
+          frequency: formData.frequency.trim(),
+          duration: formData.duration.trim(),
+          instructions: formData.instructions.trim()
+        };
+      } else if (entryType === 'diagnosis') {
+        content.diagnosis = {
+          diagnosisName: formData.diagnosisName.trim(),
+          icd10Code: formData.icd10Code.trim(),
+          severity: formData.severity
+        };
+      } else if (entryType === 'lab_result') {
+        content.labResult = {
+          testType: formData.testType.trim(),
+          collectionDate: new Date(),
+          results: [{
+            testName: formData.testType.trim(),
+            status: 'pending',
+            notes: `Urgency: ${formData.urgency}. ${formData.description.trim()}`
+          }]
+        };
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${patientDocId}/medical-records`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          recordType: 'prescription',
-          content: {
-            title: `Prescription by Dr. ${user?.profile?.firstName} ${user?.profile?.lastName}`,
-            medication: prescriptionData.medication,
-            dosage: prescriptionData.dosage,
-            frequency: prescriptionData.frequency,
-            duration: prescriptionData.duration,
-            instructions: prescriptionData.instructions,
-            prescribedBy: user._id
-          }
+          recordType: entryType,
+          content
         })
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        alert('Prescription created successfully!');
-        setShowPrescriptionModal(false);
-        setPrescriptionData({
-          medication: '',
-          dosage: '',
-          frequency: '',
-          duration: '',
-          instructions: ''
-        });
-        if (selectedPatient) {
-          fetchPatientRecords(selectedPatient._id);
-        }
+        alert('Success: Medical record added successfully!');
+        setShowEntryModal(false);
+        resetForm();
+        fetchPatientRecords(patientDocId);
+      } else {
+        alert(`Error: ${result.message || 'Failed to add record'}. Code: ${result.code || 'UNKNOWN'}`);
       }
     } catch (error) {
-      console.error('Error creating prescription:', error);
-      alert('Failed to create prescription');
+      console.error('Error creating record:', error);
+      alert('System Error: Failed to communicate with the server. Please try again later.');
     }
   };
 
-  const handlePatientSelect = (patient) => {
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      medicationName: '',
+      dosage: '',
+      frequency: '',
+      duration: '',
+      instructions: '',
+      diagnosisName: '',
+      icd10Code: '',
+      severity: 'mild',
+      testType: '',
+      urgency: 'routine'
+    });
+  };
+
+  const updateComplaintStatus = async (complaintId, status) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/complaints/${complaintId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        fetchComplaints();
+      }
+    } catch (error) {
+      console.error('Error updating complaint status:', error);
+    }
+  };
+
+  const handlePatientSelect = async (patient) => {
     setSelectedPatient(patient);
-    fetchPatientRecords(patient._id);
+    setActiveTab('records');
+    const docId = await fetchPatientDocId(patient._id);
+    if (!docId) {
+      alert('Could not find medical profile for this patient. Ensure they have one.');
+      setMedicalRecords([]);
+    }
   };
 
   const handleLogout = () => {
@@ -289,17 +428,36 @@ const DoctorDashboard = () => {
                               <div className="flex items-center gap-4 mt-3 text-xs font-medium text-slate-400">
                                 <span className="flex items-center gap-1">
                                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                  Added 2 hours ago
+                                  Added {new Date(complaint.createdAt).toLocaleDateString()}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                  ID: {complaint.patientId?._id?.slice(-6)}
+                                  Status: {complaint.status}
                                 </span>
                               </div>
+                              {complaint.status === 'open' && (
+                                <div className="mt-3 flex gap-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      updateComplaintStatus(complaint._id, 'in_progress');
+                                    }}
+                                    className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                                  >
+                                    Accept Case
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-2 rounded-xl bg-white border border-slate-200 text-indigo-600 shadow-sm hover:bg-indigo-600 hover:text-white transition-all">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePatientSelect(complaint.patientId);
+                              }}
+                              className="p-2 rounded-xl bg-white border border-slate-200 text-indigo-600 shadow-sm hover:bg-indigo-600 hover:text-white transition-all"
+                            >
                               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                               </svg>
@@ -334,14 +492,27 @@ const DoctorDashboard = () => {
                   </h3>
                   <p className="text-sm font-bold text-indigo-600 mt-1">Patient Profile</p>
 
-                  <div className="mt-8 grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Records</p>
-                      <p className="text-xl font-black text-slate-800">{medicalRecords.length}</p>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                      <p className="text-xl font-black text-emerald-600">Active</p>
+                  <div className="mt-6 border-t border-slate-100 pt-6">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4 px-1">Medical History</h4>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {medicalRecords.length === 0 ? (
+                        <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                          <p className="text-xs font-bold text-slate-400">No records accessible</p>
+                          <p className="text-[10px] text-slate-400 mt-1">Ensure patient has granted consent</p>
+                        </div>
+                      ) : (
+                        medicalRecords.map((record) => (
+                          <div key={record._id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors">
+                            <div className="flex justify-between items-start mb-1">
+                              <p className="text-xs font-black text-slate-900 line-clamp-1">{record.content?.title || record.recordType}</p>
+                              <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">{new Date(record.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                              {record.content?.description || record.content?.medication || 'No details available'}
+                            </p>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -352,24 +523,22 @@ const DoctorDashboard = () => {
                       </div>
                       <span className="font-medium">{selectedPatient.email || 'No email provided'}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                        <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <span className="font-medium">Insurance verified</span>
-                    </div>
                   </div>
 
                   <button
-                    onClick={() => setShowPrescriptionModal(true)}
-                    className="mt-10 w-full bg-slate-900 text-white px-6 py-4 rounded-2xl text-base font-bold hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-200 transition-all duration-300 flex items-center justify-center gap-3"
+                    onClick={() => {
+                      setEntryType('prescription');
+                      setFormData({ ...formData, title: 'New Prescription' });
+                      setShowEntryModal(true);
+                    }}
+                    className="mt-10 w-full bg-indigo-600 text-white px-6 py-4 rounded-2xl text-base font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all duration-300 flex items-center justify-center gap-3"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
-                    New Prescription
+                    Add Medical Entry
                   </button>
-                  <p className="mt-4 text-center text-xs font-medium text-slate-400 italic">This will update the patient's global records.</p>
+                  <p className="mt-4 text-center text-xs font-medium text-slate-400 italic">Add prescriptions, diagnoses, or lab recommendations.</p>
                 </div>
               </div>
             ) : (
@@ -387,96 +556,186 @@ const DoctorDashboard = () => {
         </div>
       </main>
 
-      {/* Prescription Modal - Redesigned */}
-      {showPrescriptionModal && (
+      {/* Unified Entry Modal */}
+      {showEntryModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setShowPrescriptionModal(false)}></div>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setShowEntryModal(false)}></div>
 
-          <div className="relative bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl border border-white overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+          <div className="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-white overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
             <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-slate-100 mb-6">
               <div>
-                <h3 className="text-2xl font-black text-slate-900">Create Prescription</h3>
-                <p className="text-sm font-medium text-slate-500">For {selectedPatient.profile?.firstName} {selectedPatient.profile?.lastName}</p>
+                <h3 className="text-2xl font-black text-slate-900">New Medical Entry</h3>
+                <p className="text-sm font-medium text-slate-500">For {selectedPatient?.profile?.firstName} {selectedPatient?.profile?.lastName}</p>
               </div>
               <button
-                onClick={() => setShowPrescriptionModal(false)}
+                onClick={() => setShowEntryModal(false)}
                 className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
-            <div className="px-8 pb-10 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Medication Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Amoxicillin"
-                    value={prescriptionData.medication}
-                    onChange={(e) => setPrescriptionData({ ...prescriptionData, medication: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Dosage</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 500mg"
-                    value={prescriptionData.dosage}
-                    onChange={(e) => setPrescriptionData({ ...prescriptionData, dosage: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
+            <div className="px-8 pb-10">
+              {/* Entry Type Selector */}
+              <div className="flex p-1 bg-slate-100 rounded-2xl mb-8">
+                {['prescription', 'diagnosis', 'lab_result'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setEntryType(type);
+                      setFormData({ ...formData, title: `New ${type.replace('_', ' ').charAt(0).toUpperCase() + type.replace('_', ' ').slice(1)}` });
+                    }}
+                    className={`flex-1 py-2.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${entryType === type ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  >
+                    {type === 'lab_result' ? 'Lab Rec' : type}
+                  </button>
+                ))}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Frequency</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Record Title</label>
                   <input
                     type="text"
-                    placeholder="e.g. Twice daily"
-                    value={prescriptionData.frequency}
-                    onChange={(e) => setPrescriptionData({ ...prescriptionData, frequency: e.target.value })}
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                 </div>
+
+                {entryType === 'prescription' && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Medication</label>
+                        <input
+                          type="text"
+                          value={formData.medicationName}
+                          onChange={(e) => setFormData({ ...formData, medicationName: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Dosage</label>
+                        <input
+                          type="text"
+                          value={formData.dosage}
+                          onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Frequency</label>
+                        <input
+                          type="text"
+                          value={formData.frequency}
+                          onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Duration</label>
+                        <input
+                          type="text"
+                          value={formData.duration}
+                          onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {entryType === 'diagnosis' && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Diagnosis Name</label>
+                      <input
+                        type="text"
+                        value={formData.diagnosisName}
+                        onChange={(e) => setFormData({ ...formData, diagnosisName: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">ICD-10 Code</label>
+                        <input
+                          type="text"
+                          value={formData.icd10Code}
+                          onChange={(e) => setFormData({ ...formData, icd10Code: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Severity</label>
+                        <select
+                          value={formData.severity}
+                          onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        >
+                          <option value="mild">Mild</option>
+                          <option value="moderate">Moderate</option>
+                          <option value="severe">Severe</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {entryType === 'lab_result' && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Test Type</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Complete Blood Count (CBC)"
+                        value={formData.testType}
+                        onChange={(e) => setFormData({ ...formData, testType: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Urgency</label>
+                      <select
+                        value={formData.urgency}
+                        onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      >
+                        <option value="routine">Routine</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="stat">STAT</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Duration</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 7 days"
-                    value={prescriptionData.duration}
-                    onChange={(e) => setPrescriptionData({ ...prescriptionData, duration: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Clinical Notes</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    rows={3}
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Instructions & Observations</label>
-                <textarea
-                  placeholder="Additional notes for the patient or pharmacist..."
-                  value={prescriptionData.instructions}
-                  onChange={(e) => setPrescriptionData({ ...prescriptionData, instructions: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  rows={4}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 pt-4">
-                <button
-                  onClick={() => setShowPrescriptionModal(false)}
-                  className="flex-1 px-6 py-4 rounded-2xl text-slate-600 font-bold hover:bg-slate-100 transition-all"
-                >
-                  Discard
-                </button>
-                <button
-                  onClick={createPrescription}
-                  className="flex-[2] bg-indigo-600 text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 hover:-translate-y-0.5 active:translate-y-0 transition-all"
-                >
-                  Finalize & Send
-                </button>
+                <div className="flex items-center gap-3 pt-4">
+                  <button
+                    onClick={() => setShowEntryModal(false)}
+                    className="flex-1 px-6 py-4 rounded-2xl text-slate-600 font-bold hover:bg-slate-100 transition-all"
+                  >
+                    Discard
+                  </button>
+                  <button
+                    onClick={createMedicalRecord}
+                    className="flex-[2] bg-indigo-600 text-white px-6 py-4 rounded-2xl font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                  >
+                    Finalize & Save
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -7,7 +7,18 @@ import toast from 'react-hot-toast';
  * Handles user authentication, tokens, and session management
  */
 
-// Initial state
+/**
+ * Initial Authentication State Definition
+ * 
+ * Represents the default, unauthenticated state of a client immediately upon
+ * application launch, prior to checking local storage or contacting the server.
+ * 
+ * - `user`: The user profile shape (null when logged out).
+ * - `isAuthenticated`: Boolean tracking the session login status.
+ * - `isLoading`: Boolean to prevent rendering protected pages during initial auth checks.
+ * - `tokens`: Stores the in-memory JWT payload components.
+ * - `error`: Captures any global authentication error messages.
+ */
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -32,7 +43,17 @@ const AUTH_ACTIONS = {
   SET_LOADING: 'SET_LOADING',
 };
 
-// Reducer function
+/**
+ * Authentication State Reducer
+ * 
+ * A functional reducer used with React's `useReducer` hook. It receives the
+ * current authentication state, and a dispatched action containing a `type` 
+ * and optional `payload`. It calculates and returns the next immutable state object.
+ * 
+ * @param {Object} state - The current authentication state.
+ * @param {Object} action - The dispatched action ({ type, payload }).
+ * @returns {Object} The newly calculated authentication state.
+ */
 const authReducer = (state, action) => {
   switch (action.type) {
     case AUTH_ACTIONS.LOGIN_START:
@@ -109,7 +130,18 @@ const authReducer = (state, action) => {
 // Create context
 const AuthContext = createContext();
 
-// Provider component
+/**
+ * Primary AuthProvider Component
+ * 
+ * This wrapper component should sit very high in the React application tree 
+ * (typically in index.js or App.js). It initializes the authentication state,
+ * checks local storage for existing sessions on mount, synchronizes state changes 
+ * back to local storage, and exposes core authentication logic (login, logout, 
+ * refresh) down to any child component consuming `useAuth()`.
+ * 
+ * @param {Object} props - React props
+ * @param {React.ReactNode} props.children - The nested component tree
+ */
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 

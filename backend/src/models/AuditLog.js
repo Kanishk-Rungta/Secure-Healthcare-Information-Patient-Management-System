@@ -64,13 +64,15 @@ const auditLogSchema = new mongoose.Schema({
       'prescription',
       'lab_result',
       'visit',
-      'system'
+      'system',
+      'complaint',
+      'assignment'
     ],
     required: true
   },
 
   resourceId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: false // Make optional for system events
   },
 

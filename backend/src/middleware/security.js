@@ -273,10 +273,14 @@ const corsConfig = {
       : ['http://localhost:3000'];
 
     const isLocalDevOrigin = /^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    const isVercelOrigin = origin.endsWith('.vercel.app');
 
-    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && isLocalDevOrigin)) {
+    if (allowedOrigins.includes(origin) || 
+        (process.env.NODE_ENV !== 'production' && isLocalDevOrigin) ||
+        (process.env.NODE_ENV === 'production' && isVercelOrigin)) {
       callback(null, true);
     } else {
+      console.warn(`🔒 CORS blocked request from origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },

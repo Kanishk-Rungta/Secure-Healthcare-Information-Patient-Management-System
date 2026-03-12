@@ -50,5 +50,8 @@
       "last 1 safari version"
     ]
   },
+  "engines": {
+    "node": "24.x"
+  },
   "proxy": "http://localhost:5000"
 }

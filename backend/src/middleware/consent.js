@@ -44,6 +44,8 @@ const checkConsent = async (req, res, next) => {
     // Determine purpose based on endpoint
     const purpose = determinePurpose(req);
     
+    console.log(`Checking consent for patient ${patientId}, user ${userId} (${userRole}), dataType: ${dataType}, purpose: ${purpose}`);
+
     // Check for valid consent
     const hasValidConsent = await Consent.checkConsent(
       patientId,
@@ -53,6 +55,7 @@ const checkConsent = async (req, res, next) => {
     );
     
     if (!hasValidConsent) {
+      console.log(`Consent denied for ${dataType}/${purpose}`);
       // Log consent violation
       await AuditLog.createLog({
         eventType: 'READ',
@@ -260,15 +263,30 @@ const determineDataType = (req) => {
     '/visits': 'visits',
     '/medications': 'medications',
     '/lab-results': 'lab_results',
+    '/lab-reports': 'lab_results',
     '/prescriptions': 'prescriptions',
     '/vitals': 'vital_signs',
-    '/billing': 'all_records' // Billing access usually requires broader record access or specific billing records
+    '/billing': 'billing'
   };
   
   for (const [endpoint, dataType] of Object.entries(endpointMapping)) {
     if (path.includes(endpoint)) {
       return dataType;
     }
+  }
+
+  // Handle /medical-records endpoint specifically
+  if (path.includes('/medical-records')) {
+    // Try to get recordType from query (GET) or body (POST)
+    const recordType = req.query.recordType || req.body.recordType;
+    
+    if (recordType === 'prescription') return 'prescriptions';
+    if (recordType === 'lab_result') return 'lab_results';
+    if (recordType === 'diagnosis') return 'medical_history';
+    if (recordType === 'billing') return 'billing';
+    
+    // Default for /medical-records is all_records
+    return 'all_records';
   }
   
   // Default to all_records for general patient access
@@ -279,29 +297,30 @@ const determineDataType = (req) => {
 const determinePurpose = (req) => {
   const path = req.path.toLowerCase();
   const method = req.method.toUpperCase();
+  const recordType = req.query.recordType || req.body.recordType;
   
   // Emergency endpoints
   if (path.includes('/emergency')) {
     return 'emergency_care';
   }
   
-  // Treatment-related endpoints
-  if (path.includes('/treatment') || path.includes('/prescription')) {
+  // Treatment-related
+  if (path.includes('/treatment') || path.includes('/prescription') || recordType === 'prescription' || recordType === 'medication') {
     return 'treatment';
   }
   
-  // Diagnosis-related endpoints
-  if (path.includes('/diagnosis') || path.includes('/lab-result')) {
+  // Diagnosis-related
+  if (path.includes('/diagnosis') || path.includes('/lab-result') || path.includes('/lab-reports') || recordType === 'lab_result' || recordType === 'diagnosis') {
     return 'diagnosis';
   }
   
-  // Follow-up endpoints
+  // Follow-up
   if (path.includes('/follow-up')) {
     return 'follow_up';
   }
 
-  // Billing endpoints
-  if (path.includes('/billing')) {
+  // Billing
+  if (path.includes('/billing') || recordType === 'billing') {
     return 'billing';
   }
   
@@ -414,6 +433,7 @@ const validateConsentData = (req, res, next) => {
       'medications',
       'lab_results',
       'prescriptions',
+      'billing',
       'all_records'
     ];
     

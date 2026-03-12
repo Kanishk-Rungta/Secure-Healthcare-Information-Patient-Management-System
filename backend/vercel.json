@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "nodeVersion": "22.x",
+  "nodeVersion": "24.x",
   "buildCommand": "npm run build || true",
   "env": {
     "NODE_ENV": "production"

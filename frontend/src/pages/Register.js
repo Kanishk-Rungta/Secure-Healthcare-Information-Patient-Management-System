@@ -274,10 +274,15 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-slate-50 to-slate-100 flex items-center justify-center py-12 px-4">
-      <div className="max-w-3xl w-full">
-        <div className="bg-white border border-blue-100 rounded-2xl shadow-sm px-8 py-10">
-          <div className="text-center">
+    <div className="relative min-h-screen bg-gradient-to-tr from-green-400 via-blue-300 to-purple-400 flex items-center justify-center overflow-hidden py-12 px-4">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 -left-10 w-72 h-72 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute bottom-0 -right-10 w-72 h-72 bg-gradient-to-br from-yellow-300 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+      </div>
+      <div className="relative max-w-3xl w-full">
+        <div className="p-[1px] rounded-2xl bg-gradient-to-r from-teal-400 via-blue-400 to-indigo-400 shadow-lg">
+          <div className="bg-white rounded-2xl shadow-sm px-8 py-10">
+            <div className="text-center">
             <div className="mx-auto h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
               <span className="text-blue-600 font-semibold">SH</span>
             </div>

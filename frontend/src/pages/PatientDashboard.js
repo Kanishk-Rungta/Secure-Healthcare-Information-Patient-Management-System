@@ -78,7 +78,7 @@ const PatientDashboard = () => {
   };
 
   const StatCard = ({ icon: Icon, title, value, color, bgColor }) => (
-    <div className={`${bgColor} rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer`}>
+    <div className={`${bgColor} rounded-xl p-6 shadow-sm border border-transparent hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -91,7 +91,7 @@ const PatientDashboard = () => {
     </div>
   );
 
-  const QuickAction = ({ icon: Icon, title, onClick, color = 'bg-blue-500' }) => (
+  const QuickAction = ({ icon: Icon, title, onClick, color = 'bg-gradient-to-r from-blue-500 to-indigo-500' }) => (
     <button
       onClick={onClick}
       className={`${color} hover:opacity-90 hover:scale-105 text-white p-4 rounded-xl shadow-sm transition-all duration-200 flex flex-col items-center gap-2 hover:shadow-lg`}
@@ -102,9 +102,9 @@ const PatientDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-purple-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 shadow-lg border-b border-gray-200">
+      <div className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 shadow-lg border-b border-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
@@ -131,29 +131,29 @@ const PatientDashboard = () => {
             icon={Calendar}
             title="Upcoming Visits"
             value={stats.upcomingVisits}
-            color="bg-blue-500"
-            bgColor="bg-blue-50"
+            color="bg-gradient-to-r from-blue-500 to-indigo-500"
+            bgColor="bg-gradient-to-r from-blue-50 to-blue-100"
           />
           <StatCard
             icon={Pill}
             title="Active Medications"
             value={stats.activeMedications}
-            color="bg-green-500"
-            bgColor="bg-green-50"
+            color="bg-gradient-to-r from-green-500 to-teal-500"
+            bgColor="bg-gradient-to-r from-green-50 to-green-100"
           />
           <StatCard
             icon={FileText}
             title="Medical Records"
             value={stats.totalRecords}
-            color="bg-purple-500"
-            bgColor="bg-purple-50"
+            color="bg-gradient-to-r from-purple-500 to-pink-500"
+            bgColor="bg-gradient-to-r from-purple-50 to-purple-100"
           />
           <StatCard
             icon={AlertCircle}
             title="Pending Consents"
             value={stats.pendingConsents}
-            color="bg-orange-500"
-            bgColor="bg-orange-50"
+            color="bg-gradient-to-r from-orange-500 to-red-500"
+            bgColor="bg-gradient-to-r from-orange-50 to-orange-100"
           />
         </div>
 
@@ -165,25 +165,25 @@ const PatientDashboard = () => {
               icon={Calendar}
               title="Book Appointment"
               onClick={() => toast.success('Appointment booking coming soon!')}
-              color="bg-blue-500"
+              color="bg-gradient-to-r from-blue-500 to-indigo-500"
             />
             <QuickAction
               icon={FileText}
               title="View Records"
               onClick={() => setActiveTab('records')}
-              color="bg-green-500"
+              color="bg-gradient-to-r from-green-500 to-teal-500"
             />
             <QuickAction
               icon={Settings}
               title="Manage Consents"
               onClick={() => setActiveTab('consents')}
-              color="bg-purple-500"
+              color="bg-gradient-to-r from-purple-500 to-pink-500"
             />
             <QuickAction
               icon={Phone}
               title="Contact Doctor"
               onClick={() => toast.success('Contact feature coming soon!')}
-              color="bg-orange-500"
+              color="bg-gradient-to-r from-orange-500 to-red-500"
             />
           </div>
         </div>

@@ -7,7 +7,9 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-200 via-blue-200 to-indigo-200">
       {/* Navigation */}
-      <nav className="bg-white border-b slide-in-left">
+      <nav className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white slide-in-left">
+        <div className="absolute -top-10 -left-10 w-60 h-60 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-gradient-to-br from-yellow-300 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -24,7 +26,7 @@ const Home = () => {
               </button>
               <button
                 onClick={() => navigate('/register')}
-                className="bg-blue-600 text-white px-4 py-2 text-sm hover:bg-blue-700"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm hover:opacity-90 transition"
               >
                 Get Started
               </button>
@@ -45,13 +47,13 @@ const Home = () => {
           <div className="flex justify-center space-x-4">
             <button
               onClick={() => navigate('/register')}
-              className="bg-blue-600 text-white px-6 py-3 text-sm hover:bg-blue-700"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 text-sm hover:opacity-90 transition"
             >
               Get Started
             </button>
             <button
               onClick={() => navigate('/login')}
-              className="border border-gray-300 text-gray-700 px-6 py-3 text-sm hover:bg-gray-50"
+              className="border border-gray-300 text-gray-700 px-6 py-3 text-sm hover:bg-gray-50 transition"
             >
               Sign In
             </button>

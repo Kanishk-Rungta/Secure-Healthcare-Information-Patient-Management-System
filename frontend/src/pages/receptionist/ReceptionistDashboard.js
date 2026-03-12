@@ -245,11 +245,13 @@ const ReceptionistDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-100 to-cyan-100">
       {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur border-b border-sky-200">
+      <nav className="relative bg-gradient-to-r from-pink-600 via-orange-600 to-yellow-600/80 backdrop-blur border-b border-transparent">
+        <div className="absolute -top-8 -left-8 w-64 h-64 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-gradient-to-br from-yellow-300 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <span className="text-xl font-semibold text-gray-900">
+              <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-pink-900 via-orange-700 to-yellow-700">
                 Receptionist Portal
               </span>
             </div>

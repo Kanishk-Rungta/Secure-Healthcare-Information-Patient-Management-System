@@ -135,10 +135,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-blue-100 to-teal-100 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white border border-blue-100 rounded-2xl shadow-sm px-8 py-10">
-          <div className="text-center">
+    <div className="relative min-h-screen bg-gradient-to-bl from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden py-12 px-4">
+      {/* decorative blobs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 -left-10 w-72 h-72 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute bottom-0 -right-10 w-72 h-72 bg-gradient-to-br from-yellow-300 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+      </div>
+      <div className="relative max-w-md w-full">
+        <div className="p-[1px] rounded-2xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg">
+          <div className="bg-white rounded-2xl shadow-sm px-8 py-10">
+            <div className="text-center">
             <div className="mx-auto h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
               <span className="text-blue-600 font-semibold">SH</span>
             </div>
@@ -223,14 +229,14 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => navigate('/register')}
-                className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                className="text-sm font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-80"
               >
                 Create account
               </button>
               <button
                 type="submit"
                 disabled={loading || !isFormValid}
-                className="inline-flex items-center justify-center px-6 py-2.5 rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"
+                className="inline-flex items-center justify-center px-6 py-2.5 rounded-md text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-xl"
               >
                 {loading ? 'Signing in...' : 'Next'}
               </button>

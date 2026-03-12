@@ -66,7 +66,7 @@ const auditLogSchema = new mongoose.Schema({
       'visit',
       'system',
       'complaint',
-      'assignment'
+      'assignment',
     ],
     required: true
   },

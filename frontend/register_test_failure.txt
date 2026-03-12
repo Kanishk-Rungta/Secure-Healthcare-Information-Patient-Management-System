@@ -1,0 +1,568 @@
+  console.error
+    Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+      25 |
+      26 |     const renderRegister = () => {
+    > 27 |         return render(
+         |                      ^
+      28 |             <BrowserRouter>
+      29 |                 <Register />
+      30 |             </BrowserRouter>
+
+      at printWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:71:30)
+      at error (node_modules/react-dom/cjs/react-dom-test-utils.development.js:45:7)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1736:7)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at renderRegister (src/pages/__tests__/Register.test.js:27:22)
+      at Object.<anonymous> (src/pages/__tests__/Register.test.js:35:9)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  console.warn
+    ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+      25 |
+      26 |     const renderRegister = () => {
+    > 27 |         return render(
+         |                      ^
+      28 |             <BrowserRouter>
+      29 |                 <Register />
+      30 |             </BrowserRouter>
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logV6DeprecationWarnings [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router-dom/index.tsx:816:25
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at renderRegister (src/pages/__tests__/Register.test.js:27:22)
+      at Object.<anonymous> (src/pages/__tests__/Register.test.js:35:9)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  console.warn
+    ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+      25 |
+      26 |     const renderRegister = () => {
+    > 27 |         return render(
+         |                      ^
+      28 |             <BrowserRouter>
+      29 |                 <Register />
+      30 |             </BrowserRouter>
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logV6DeprecationWarnings [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router-dom/index.tsx:816:25
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at renderRegister (src/pages/__tests__/Register.test.js:27:22)
+      at Object.<anonymous> (src/pages/__tests__/Register.test.js:35:9)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+FAIL src/pages/__tests__/Register.test.js
+  Register Component
+    ✕ renders register form correctly (110 ms)
+    ✕ submits form successfully and navigates to login on success (338 ms)
+
+  ● Register Component › renders register form correctly
+
+    TestingLibraryElementError: Found multiple elements with the text: Create account
+
+    Here are the matching elements:
+
+    Ignored nodes: comments, script, style
+    [36m<h2[39m
+      [33mclass[39m=[32m"text-3xl font-semibold text-gray-900"[39m
+    [36m>[39m
+      [0mCreate account[0m
+    [36m</h2>[39m
+
+    Ignored nodes: comments, script, style
+    [36m<button[39m
+      [33mclass[39m=[32m"w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"[39m
+      [33mtype[39m=[32m"submit"[39m
+    [36m>[39m
+      [0mCreate account[0m
+    [36m</button>[39m
+
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-h-screen bg-gradient-to-br from-blue-100 via-slate-50 to-slate-100 flex items-center justify-center py-12 px-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"max-w-3xl w-full"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"bg-white border border-blue-100 rounded-2xl shadow-sm px-8 py-10"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"text-center"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mx-auto h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-blue-600 font-semibold"[39m
+                  [36m>[39m
+                    [0mSH[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"text-3xl font-semibold text-gray-900"[39m
+                [36m>[39m
+                  [0mCreate account[0m
+                [36m</h2>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-gray-600"[39m
+                [36m>[39m
+                  [0mJoin our secure healthcare platform[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<form[39m
+                [33mclass[39m=[32m"mt-8 space-y-8"[39m
+              [36m>[39m
+                [36m<section[39m
+                  [33mclass[39m=[32m"space-y-6"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center justify-between"[39m
+                  [36m>[39m
+                    [36m<h3[39m
+                      [33mclass[39m=[32m"text-sm font-semibold text-blue-700 uppercase tracking-wide"[39m
+                    [36m>[39m
+                      [0mPersonal Information[0m
+                    [36m</h3>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-xs text-gray-500"[39m
+                    [36m>[39m
+                      [0mAll fields required unless marked optional.[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"grid grid-cols-1 sm:grid-cols-2 gap-5"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"relative"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                        [33mid[39m=[32m"firstName"[39m
+                        [33mname[39m=[32m"firstName"[39m
+                        [33mplaceholder[39m=[32m" "[39m
+                        [33mrequired[39m=[32m""[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                      [36m<label[39m
+                        [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                        [33mfor[39m=[32m"firstName"[39m
+                      [36m>[39m
+                        [0mFirst name[0m
+                      [36m</label>[39m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"relative"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                        [33mid[39m=[32m"lastName"[39m
+                        [33mname[39m=[32m"lastName"[39m
+                        [33mplaceholder[39m=[32m" "[39m
+                        [33mrequired[39m=[32m""[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                      [36m<label[39m
+                        [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                        [33mfor[39m=[32m"lastName"[39m
+                      [36m>[39m
+                        [0mLast name[0m
+                      [36m</label>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"relative"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mautocomplete[39m=[32m"email"[39m
+                      [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                      [33mid[39m=[32m"email"[39m
+                      [33mname[39m=[32m"email"[39m
+                      [33mplaceholder[39m=[32m" "[39m
+                      [33mrequired[39m=[32m""[39m
+                      [33mtype[39m=[32m"email"[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m/>[39m
+                    [36m<label[39m
+                      [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                      [33mfor[39m=[32m"email"[39m
+                    [36m>[39m
+                      [0mEmail address[0m
+                    [36m</label>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"text-xs text-gray-500 mt-2"[39m
+                    [36m>[39m
+                      [0mWe’ll send verification and account updates here.[0m
+                    [36m</p>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"relative"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                      [33mid[39m=[32m"phone"[39m
+                      [33...
+
+      34 |     it('renders register form correctly', () => {
+      35 |         renderRegister();
+    > 36 |         expect(screen.getByText('Create account')).toBeInTheDocument();
+         |                       ^
+      37 |         expect(screen.getByLabelText(/First name/i)).toBeInTheDocument();
+      38 |         expect(screen.getByLabelText(/Last name/i)).toBeInTheDocument();
+      39 |         expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+
+      at Object.getElementError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getElementError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+      at getMultipleElementsFoundError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+      at node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+      at getByText (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
+      at Object.<anonymous> (src/pages/__tests__/Register.test.js:36:23)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  ● Register Component › submits form successfully and navigates to login on success
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "checkbox" and name `/I agree with the/i`
+
+    Here are the accessible roles:
+
+      heading:
+
+      Name "Create account":
+      [36m<h2[39m
+        [33mclass[39m=[32m"text-3xl font-semibold text-gray-900"[39m
+      [36m/>[39m
+
+      Name "Personal Information":
+      [36m<h3[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-blue-700 uppercase tracking-wide"[39m
+      [36m/>[39m
+
+      Name "Account Security":
+      [36m<h3[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-blue-700 uppercase tracking-wide"[39m
+      [36m/>[39m
+
+      Name "Consent & Terms":
+      [36m<h3[39m
+        [33mclass[39m=[32m"text-sm font-semibold text-blue-700 uppercase tracking-wide"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      textbox:
+
+      Name "First name":
+      [36m<input[39m
+        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+        [33mid[39m=[32m"firstName"[39m
+        [33mname[39m=[32m"firstName"[39m
+        [33mplaceholder[39m=[32m" "[39m
+        [33mrequired[39m=[32m""[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m"John"[39m
+      [36m/>[39m
+
+      Name "Last name":
+      [36m<input[39m
+        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+        [33mid[39m=[32m"lastName"[39m
+        [33mname[39m=[32m"lastName"[39m
+        [33mplaceholder[39m=[32m" "[39m
+        [33mrequired[39m=[32m""[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m"Doe"[39m
+      [36m/>[39m
+
+      Name "Email address":
+      [36m<input[39m
+        [33mautocomplete[39m=[32m"email"[39m
+        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+        [33mid[39m=[32m"email"[39m
+        [33mname[39m=[32m"email"[39m
+        [33mplaceholder[39m=[32m" "[39m
+        [33mrequired[39m=[32m""[39m
+        [33mtype[39m=[32m"email"[39m
+        [33mvalue[39m=[32m"john@example.com"[39m
+      [36m/>[39m
+
+      Name "Phone number (optional)":
+      [36m<input[39m
+        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+        [33mid[39m=[32m"phone"[39m
+        [33mname[39m=[32m"phone"[39m
+        [33mplaceholder[39m=[32m" "[39m
+        [33mtype[39m=[32m"tel"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      combobox:
+
+      Name "Role":
+      [36m<select[39m
+        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 bg-white rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+        [33mid[39m=[32m"role"[39m
+        [33mname[39m=[32m"role"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      option:
+
+      Name "Patient":
+      [36m<option[39m
+        [33mvalue[39m=[32m"PATIENT"[39m
+      [36m/>[39m
+
+      Name "Doctor":
+      [36m<option[39m
+        [33mvalue[39m=[32m"DOCTOR"[39m
+      [36m/>[39m
+
+      Name "Receptionist":
+      [36m<option[39m
+        [33mvalue[39m=[32m"RECEPTIONIST"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "Show":
+      [36m<button[39m
+        [33mclass[39m=[32m"absolute right-3 top-3 text-gray-400 hover:text-gray-600"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "Show":
+      [36m<button[39m
+        [33mclass[39m=[32m"absolute right-3 top-3 text-gray-400 hover:text-gray-600"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "Create account":
+      [36m<button[39m
+        [33mclass[39m=[32m"w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition transform hover:-translate-y-0.5 hover:shadow-lg"[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m/>[39m
+
+      Name "Sign in":
+      [36m<button[39m
+        [33mclass[39m=[32m"font-medium text-blue-600 hover:text-blue-500"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      checkbox:
+
+      Name "I agree to the processing of my personal data for healthcare purposes. Required to create your account.":
+      [36m<input[39m
+        [33mclass[39m=[32m"mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"[39m
+        [33mid[39m=[32m"dataProcessingConsent"[39m
+        [33mname[39m=[32m"dataProcessingConsent"[39m
+        [33mtype[39m=[32m"checkbox"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-h-screen bg-gradient-to-br from-blue-100 via-slate-50 to-slate-100 flex items-center justify-center py-12 px-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"max-w-3xl w-full"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"bg-white border border-blue-100 rounded-2xl shadow-sm px-8 py-10"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"text-center"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mx-auto h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-4"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-blue-600 font-semibold"[39m
+                  [36m>[39m
+                    [0mSH[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"text-3xl font-semibold text-gray-900"[39m
+                [36m>[39m
+                  [0mCreate account[0m
+                [36m</h2>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-2 text-gray-600"[39m
+                [36m>[39m
+                  [0mJoin our secure healthcare platform[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<form[39m
+                [33mclass[39m=[32m"mt-8 space-y-8"[39m
+              [36m>[39m
+                [36m<section[39m
+                  [33mclass[39m=[32m"space-y-6"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center justify-between"[39m
+                  [36m>[39m
+                    [36m<h3[39m
+                      [33mclass[39m=[32m"text-sm font-semibold text-blue-700 uppercase tracking-wide"[39m
+                    [36m>[39m
+                      [0mPersonal Information[0m
+                    [36m</h3>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-xs text-gray-500"[39m
+                    [36m>[39m
+                      [0mAll fields required unless marked optional.[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"grid grid-cols-1 sm:grid-cols-2 gap-5"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"relative"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                        [33mid[39m=[32m"firstName"[39m
+                        [33mname[39m=[32m"firstName"[39m
+                        [33mplaceholder[39m=[32m" "[39m
+                        [33mrequired[39m=[32m""[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m"John"[39m
+                      [36m/>[39m
+                      [36m<label[39m
+                        [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                        [33mfor[39m=[32m"firstName"[39m
+                      [36m>[39m
+                        [0mFirst name[0m
+                      [36m</label>[39m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"relative"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                        [33mid[39m=[32m"lastName"[39m
+                        [33mname[39m=[32m"lastName"[39m
+                        [33mplaceholder[39m=[32m" "[39m
+                        [33mrequired[39m=[32m""[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m"Doe"[39m
+                      [36m/>[39m
+                      [36m<label[39m
+                        [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                        [33mfor[39m=[32m"lastName"[39m
+                      [36m>[39m
+                        [0mLast name[0m
+                      [36m</label>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"relative"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mautocomplete[39m=[32m"email"[39m
+                      [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                      [33mid[39m=[32m"email"[39m
+                      [33mname[39m=[32m"email"[39m
+                      [33mplaceholder[39m=[32m" "[39m
+                      [33mrequired[39m=[32m""[39m
+                      [33mtype[39m=[32m"email"[39m
+                      [33mvalue[39m=[32m"john@example.com"[39m
+                    [36m/>[39m
+                    [36m<label[39m
+                      [33mclass[39m=[32m"absolute left-4 top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-gray-500 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-blue-600 bg-white px-1"[39m
+                      [33mfor[39m=[32m"email"[39m
+                    [36m>[39m
+                      [0mEmail address[0m
+                    [36m</label>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"text-xs text-gray-500 mt-2"[39m
+                    [36m>[39m
+                      [0mWe’ll send verification and account updates here.[0m
+                    [36m</p>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"relative"[39m
+                  [36m>[39m
+                    [36m<input[39m
+                      [33mclass[39m=[32m"peer block w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"[39m
+                      [33mid[39m=[32m"phone"[39m...
+
+      59 |
+      60 |         // Tick the consent box
+    > 61 |         const checkbox = screen.getByRole('checkbox', { name: /I agree with the/i });
+         |                                 ^
+      62 |         fireEvent.click(checkbox);
+      63 |
+      64 |         // Click submit
+
+      at Object.getElementError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at getByRole (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
+      at Object.<anonymous> (src/pages/__tests__/Register.test.js:61:33)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        1.457 s
+Ran all test suites matching /src\/pages\/__tests__\/Register.test.js/i.

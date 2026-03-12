@@ -1,5 +1,6 @@
 const Consent = require('../models/Consent');
 const AuditLog = require('../models/AuditLog');
+const Patient = require('../models/Patient');
 const { v4: uuidv4 } = require('uuid');
 
 /**
@@ -14,7 +15,7 @@ const checkConsent = async (req, res, next) => {
     const { patientId } = req.params;
     const userId = req.user._id;
     const userRole = req.user.role;
-    
+
     if (!patientId) {
       return res.status(400).json({
         success: false,
@@ -22,28 +23,27 @@ const checkConsent = async (req, res, next) => {
         code: 'PATIENT_ID_REQUIRED'
       });
     }
-    
+
     // Skip consent check for administrators (with audit logging)
     if (userRole === 'administrator') {
       await logConsentBypass(req, 'administrator_access');
       return next();
     }
-    
+
     // Skip consent check if user is accessing their own data
     if (userRole === 'patient') {
-      const Patient = require('../models/Patient');
       const patient = await Patient.findOne({ userId });
       if (patient && patient._id.toString() === patientId) {
         return next();
       }
     }
-    
+
     // Determine data type based on request
     const dataType = determineDataType(req);
-    
+
     // Determine purpose based on endpoint
     const purpose = determinePurpose(req);
-    
+
     console.log(`Checking consent for patient ${patientId}, user ${userId} (${userRole}), dataType: ${dataType}, purpose: ${purpose}`);
 
     // Check for valid consent
@@ -53,7 +53,7 @@ const checkConsent = async (req, res, next) => {
       dataType,
       purpose
     );
-    
+
     if (!hasValidConsent) {
       console.log(`Consent denied for ${dataType}/${purpose}`);
       // Log consent violation
@@ -85,7 +85,7 @@ const checkConsent = async (req, res, next) => {
           hipaaRelevant: true
         }
       });
-      
+
       return res.status(403).json({
         success: false,
         message: 'Patient consent required for this access',
@@ -94,18 +94,18 @@ const checkConsent = async (req, res, next) => {
         purpose
       });
     }
-    
+
     // Get the consent record for logging
     const consent = await Consent.findValidConsent(
       patientId,
       userId,
       dataType
     );
-    
+
     if (consent) {
       // Increment access count
       await consent.incrementAccess();
-      
+
       // Log successful consent-verified access
       await AuditLog.createLog({
         eventType: 'READ',
@@ -127,10 +127,10 @@ const checkConsent = async (req, res, next) => {
         }
       });
     }
-    
+
     req.consentVerified = true;
     req.consentId = consent?._id;
-    
+
     next();
   } catch (error) {
     console.error('Consent check error:', error);
@@ -148,9 +148,9 @@ const emergencyAccess = async (req, res, next) => {
     const { patientId } = req.params;
     const userId = req.user._id;
     const userRole = req.user.role;
-    
+
     const { emergencyReason, emergencyJustification } = req.body;
-    
+
     if (!emergencyReason || !emergencyJustification) {
       return res.status(400).json({
         success: false,
@@ -158,7 +158,7 @@ const emergencyAccess = async (req, res, next) => {
         code: 'EMERGENCY_ACCESS_DETAILS_REQUIRED'
       });
     }
-    
+
     // Only certain roles can request emergency access
     const emergencyRoles = ['doctor', 'receptionist', 'administrator'];
     if (!emergencyRoles.includes(userRole)) {
@@ -168,7 +168,7 @@ const emergencyAccess = async (req, res, next) => {
         code: 'EMERGENCY_ACCESS_NOT_PERMITTED'
       });
     }
-    
+
     // Create or update consent with emergency access
     const consent = await Consent.findOne({
       patientId,
@@ -176,7 +176,7 @@ const emergencyAccess = async (req, res, next) => {
       dataType: 'all_records',
       status: 'active'
     });
-    
+
     if (consent) {
       await consent.enableEmergencyAccess(
         emergencyReason,
@@ -202,10 +202,10 @@ const emergencyAccess = async (req, res, next) => {
           approvedBy: userId
         }
       });
-      
+
       await newConsent.save();
     }
-    
+
     // Log emergency access
     await AuditLog.createLog({
       eventType: 'EMERGENCY_ACCESS',
@@ -238,7 +238,7 @@ const emergencyAccess = async (req, res, next) => {
         hipaaRelevant: true
       }
     });
-    
+
     req.emergencyAccess = true;
     next();
   } catch (error) {
@@ -255,7 +255,7 @@ const emergencyAccess = async (req, res, next) => {
 const determineDataType = (req) => {
   const path = req.path.toLowerCase();
   const method = req.method.toUpperCase();
-  
+
   // Map endpoints to data types
   const endpointMapping = {
     '/demographics': 'demographics',
@@ -268,7 +268,7 @@ const determineDataType = (req) => {
     '/vitals': 'vital_signs',
     '/billing': 'billing'
   };
-  
+
   for (const [endpoint, dataType] of Object.entries(endpointMapping)) {
     if (path.includes(endpoint)) {
       return dataType;
@@ -279,16 +279,16 @@ const determineDataType = (req) => {
   if (path.includes('/medical-records')) {
     // Try to get recordType from query (GET) or body (POST)
     const recordType = req.query.recordType || req.body.recordType;
-    
+
     if (recordType === 'prescription') return 'prescriptions';
     if (recordType === 'lab_result') return 'lab_results';
     if (recordType === 'diagnosis') return 'medical_history';
     if (recordType === 'billing') return 'billing';
-    
+
     // Default for /medical-records is all_records
     return 'all_records';
   }
-  
+
   // Default to all_records for general patient access
   return 'all_records';
 };
@@ -298,22 +298,21 @@ const determinePurpose = (req) => {
   const path = req.path.toLowerCase();
   const method = req.method.toUpperCase();
   const recordType = req.query.recordType || req.body.recordType;
-  
   // Emergency endpoints
   if (path.includes('/emergency')) {
     return 'emergency_care';
   }
-  
+
   // Treatment-related
   if (path.includes('/treatment') || path.includes('/prescription') || recordType === 'prescription' || recordType === 'medication') {
     return 'treatment';
   }
-  
+
   // Diagnosis-related
   if (path.includes('/diagnosis') || path.includes('/lab-result') || path.includes('/lab-reports') || recordType === 'lab_result' || recordType === 'diagnosis') {
     return 'diagnosis';
   }
-  
+
   // Follow-up
   if (path.includes('/follow-up')) {
     return 'follow_up';
@@ -323,7 +322,7 @@ const determinePurpose = (req) => {
   if (path.includes('/billing') || recordType === 'billing') {
     return 'billing';
   }
-  
+
   // Default to treatment for medical access
   return 'treatment';
 };
@@ -367,7 +366,7 @@ const patientConsentCheck = async (req, res, next) => {
   try {
     const { patientId } = req.params;
     const { dataType, recipientId } = req.body;
-    
+
     if (!patientId || !dataType || !recipientId) {
       return res.status(400).json({
         success: false,
@@ -375,12 +374,11 @@ const patientConsentCheck = async (req, res, next) => {
         code: 'MISSING_CONSENT_PARAMETERS'
       });
     }
-    
+
     // Verify user is the patient or administrator
     if (req.user.role === 'patient') {
-      const Patient = require('../models/Patient');
       const patient = await Patient.findOne({ userId: req.user._id });
-      
+
       if (!patient || patient._id.toString() !== patientId) {
         return res.status(403).json({
           success: false,
@@ -395,7 +393,7 @@ const patientConsentCheck = async (req, res, next) => {
         code: 'CONSENT_MANAGE_PERMISSION_DENIED'
       });
     }
-    
+
     next();
   } catch (error) {
     console.error('Patient consent check error:', error);
@@ -410,21 +408,21 @@ const patientConsentCheck = async (req, res, next) => {
 // Validate consent parameters
 const validateConsentData = (req, res, next) => {
   try {
-    const { 
-      recipientId, 
-      dataType, 
-      purpose, 
+    const {
+      recipientId,
+      dataType,
+      purpose,
       validUntil,
-      limitations 
+      limitations
     } = req.body;
-    
+
     const errors = [];
-    
+
     // Validate recipient
     if (!recipientId) {
       errors.push('Recipient ID is required');
     }
-    
+
     // Validate data type
     const validDataTypes = [
       'demographics',
@@ -436,11 +434,11 @@ const validateConsentData = (req, res, next) => {
       'billing',
       'all_records'
     ];
-    
+
     if (!validDataTypes.includes(dataType)) {
       errors.push('Invalid data type');
     }
-    
+
     // Validate purpose
     const validPurposes = [
       'treatment',
@@ -452,21 +450,21 @@ const validateConsentData = (req, res, next) => {
       'billing',
       'legal_compliance'
     ];
-    
+
     if (!validPurposes.includes(purpose)) {
       errors.push('Invalid purpose');
     }
-    
+
     // Validate validity period
     if (!validUntil || new Date(validUntil) <= new Date()) {
       errors.push('Valid until date must be in the future');
     }
-    
+
     // Validate limitations
     if (limitations && limitations.maxAccessCount && limitations.maxAccessCount < 1) {
       errors.push('Max access count must be at least 1');
     }
-    
+
     if (errors.length > 0) {
       return res.status(400).json({
         success: false,
@@ -475,7 +473,7 @@ const validateConsentData = (req, res, next) => {
         errors
       });
     }
-    
+
     next();
   } catch (error) {
     console.error('Consent validation error:', error);

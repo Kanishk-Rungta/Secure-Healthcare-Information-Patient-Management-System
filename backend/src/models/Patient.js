@@ -14,7 +14,7 @@ const patientSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  
+
   // Basic demographic information (minimal collection)
   demographics: {
     dateOfBirth: {
@@ -54,7 +54,7 @@ const patientSchema = new mongoose.Schema({
       }
     }
   },
-  
+
   // Medical history (separate from basic demographics)
   medicalHistory: {
     conditions: [{
@@ -142,7 +142,7 @@ const patientSchema = new mongoose.Schema({
       }
     }]
   },
-  
+
   // Visit records (separate collection for better organization)
   visits: [{
     date: {
@@ -196,7 +196,7 @@ const patientSchema = new mongoose.Schema({
     },
     followUpDate: Date
   }],
-  
+
   // Privacy and consent settings
   privacy: {
     dataSharingPreferences: {
@@ -225,14 +225,14 @@ const patientSchema = new mongoose.Schema({
       }]
     }
   },
-  
+
   // Metadata
   status: {
     type: String,
     enum: ['active', 'inactive', 'deceased'],
     default: 'active'
   },
-  
+
   // Soft delete for GDPR compliance
   deletedAt: {
     type: Date,
@@ -240,9 +240,9 @@ const patientSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  toJSON: { 
+  toJSON: {
     virtuals: true,
-    transform: function(doc, ret) {
+    transform: function (doc, ret) {
       // Remove sensitive fields from JSON output
       delete ret.__v;
       return ret;
@@ -261,7 +261,7 @@ patientSchema.index({ 'visits.date': -1 });
 patientSchema.index({ 'medicalHistory.conditions.diagnosedBy': 1 });
 
 // Virtual for age
-patientSchema.virtual('demographics.age').get(function() {
+patientSchema.virtual('demographics.age').get(function () {
   if (!this.demographics || !this.demographics.dateOfBirth) {
     return null;
   }
@@ -269,47 +269,50 @@ patientSchema.virtual('demographics.age').get(function() {
   const birthDate = this.demographics.dateOfBirth;
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
-  
+
   return age;
 });
 
 // Virtual for active medications
-patientSchema.virtual('activeMedications').get(function() {
+patientSchema.virtual('activeMedications').get(function () {
+  if (!this.medicalHistory || !this.medicalHistory.medications) {
+    return [];
+  }
   return this.medicalHistory.medications.filter(med => med.active);
 });
 
 // Instance methods
-patientSchema.methods.addVisit = function(visitData) {
+patientSchema.methods.addVisit = function (visitData) {
   this.visits.push(visitData);
   return this.save();
 };
 
-patientSchema.methods.addMedicalCondition = function(conditionData) {
+patientSchema.methods.addMedicalCondition = function (conditionData) {
   this.medicalHistory.conditions.push(conditionData);
   return this.save();
 };
 
-patientSchema.methods.addMedication = function(medicationData) {
+patientSchema.methods.addMedication = function (medicationData) {
   this.medicalHistory.medications.push(medicationData);
   return this.save();
 };
 
-patientSchema.methods.getRecentVisits = function(limit = 10) {
+patientSchema.methods.getRecentVisits = function (limit = 10) {
   return this.visits
     .sort({ date: -1 })
     .slice(0, limit);
 };
 
-patientSchema.methods.getActiveConditions = function() {
+patientSchema.methods.getActiveConditions = function () {
   return this.medicalHistory.conditions.filter(condition => condition.status === 'active');
 };
 
 // GDPR compliance methods
-patientSchema.methods.anonymize = function() {
+patientSchema.methods.anonymize = function () {
   // Anonymize sensitive data while preserving medical history for research
   this.demographics.emergencyContact = {
     name: 'Anonymized',
@@ -322,20 +325,20 @@ patientSchema.methods.anonymize = function() {
 };
 
 // Static methods
-patientSchema.statics.findByUserId = function(userId) {
+patientSchema.statics.findByUserId = function (userId) {
   return this.findOne({ userId, deletedAt: { $exists: false } });
 };
 
-patientSchema.statics.findActivePatients = function() {
+patientSchema.statics.findActivePatients = function () {
   return this.find({ status: 'active', deletedAt: { $exists: false } });
 };
 
-patientSchema.statics.searchPatients = function(searchTerm) {
+patientSchema.statics.searchPatients = function (searchTerm) {
   const regex = new RegExp(searchTerm, 'i');
-  
+
   // Check if searchTerm is a valid ObjectId
   const isObjectId = mongoose.Types.ObjectId.isValid(searchTerm);
-  
+
   const searchCriteria = [
     { 'demographics.emergencyContact.name': regex },
     { 'medicalHistory.conditions.name': regex },
@@ -357,7 +360,7 @@ patientSchema.statics.searchPatients = function(searchTerm) {
 };
 
 // Middleware for audit logging
-patientSchema.pre('save', function(next) {
+patientSchema.pre('save', function (next) {
   if (this.isNew) {
     this.$locals.operation = 'CREATE';
   } else {
@@ -366,7 +369,7 @@ patientSchema.pre('save', function(next) {
   next();
 });
 
-patientSchema.pre(['remove', 'deleteOne'], function(next) {
+patientSchema.pre(['remove', 'deleteOne'], function (next) {
   this.$locals.operation = 'DELETE';
   next();
 });

@@ -349,6 +349,10 @@ const PatientDashboard = () => {
               </div>
             </div>
           </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default PatientDashboard;

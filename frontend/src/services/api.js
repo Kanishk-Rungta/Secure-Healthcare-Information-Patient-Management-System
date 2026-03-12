@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
  */
 
 // Base API configuration
-const API_BASE_URL = `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}`;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5050/api';
 
 // Create axios instance
 const apiClient = axios.create({
@@ -70,7 +70,7 @@ apiClient.interceptors.response.use(
         const authData = localStorage.getItem('authTokens');
         if (authData) {
           const { refreshToken } = JSON.parse(authData);
-          
+
           if (refreshToken) {
             const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
               refreshToken,
@@ -79,11 +79,11 @@ apiClient.interceptors.response.use(
             if (response.data.success) {
               // Update tokens in localStorage
               localStorage.setItem('authTokens', JSON.stringify(response.data.data.tokens));
-              
+
               // Retry the original request with new token
               const { accessToken } = response.data.data.tokens;
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-              
+
               return apiClient(originalRequest);
             }
           }
@@ -94,7 +94,7 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('authUser');
         window.location.href = '/login';
         toast.error('Session expired. Please login again.');
-        
+
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('authTokens');
@@ -218,26 +218,26 @@ export const handleApiError = (error, customMessage = null) => {
   if (error.response) {
     const { status, data } = error.response;
     const message = customMessage || data.message || 'An error occurred';
-    
+
     console.error('API Error:', {
       status,
       message,
       data,
       url: error.config?.url,
     });
-    
+
     return { success: false, message, status, data };
   } else if (error.request) {
     console.error('Network Error:', error);
-    return { 
-      success: false, 
-      message: customMessage || 'Network error. Please check your connection.' 
+    return {
+      success: false,
+      message: customMessage || 'Network error. Please check your connection.'
     };
   } else {
     console.error('Error:', error);
-    return { 
-      success: false, 
-      message: customMessage || 'An unexpected error occurred.' 
+    return {
+      success: false,
+      message: customMessage || 'An unexpected error occurred.'
     };
   }
 };

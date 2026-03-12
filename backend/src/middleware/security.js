@@ -11,6 +11,9 @@ const { v4: uuidv4 } = require('uuid');
 
 // Rate limiting configuration
 const createRateLimit = (windowMs, max, message) => {
+  if (process.env.NODE_ENV === 'test') {
+    return (req, res, next) => next();
+  }
   return rateLimit({
     windowMs,
     max,
@@ -325,7 +328,9 @@ const requestLogger = async (req, res, next) => {
   const startTime = Date.now();
 
   // Log request start
-  console.log(`${req.method} ${req.originalUrl} - ${req.ip} - ${new Date().toISOString()}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`${req.method} ${req.originalUrl} - ${req.ip} - ${new Date().toISOString()}`);
+  }
 
   // Override res.end to log response
   const originalEnd = res.end;
@@ -333,10 +338,12 @@ const requestLogger = async (req, res, next) => {
     const responseTime = Date.now() - startTime;
 
     // Log response
-    console.log(`${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
+    }
 
     // Log security events
-    if (res.statusCode >= 400) {
+    if (res.statusCode >= 400 && process.env.NODE_ENV !== 'test') {
       AuditLog.createLog({
         eventType: 'SYSTEM_ERROR',
         userId: req.user?._id || null,

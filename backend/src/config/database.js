@@ -19,7 +19,7 @@ const connectDB = async () => {
     }
 
     const isAtlas = mongoURI.includes('mongodb+srv');
-    
+
     console.log('🔗 Attempting to connect to MongoDB...');
     if (isAtlas) {
       console.log('🌐 Target: MongoDB Atlas (Cloud)');
@@ -61,7 +61,7 @@ const connectDB = async () => {
         const mongoServer = await MongoMemoryServer.create();
         const memoryUri = mongoServer.getUri();
         console.log(`📍 In-Memory Database URI: ${memoryUri}`);
-        conn = await mongoose.connect(memoryUri, { 
+        conn = await mongoose.connect(memoryUri, {
           maxPoolSize: 5,
           serverSelectionTimeoutMS: 5000
         });

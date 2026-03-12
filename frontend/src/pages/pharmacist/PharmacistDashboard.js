@@ -143,7 +143,7 @@ const PharmacistDashboard = () => {
       <nav className="relative bg-gradient-to-r from-emerald-600 via-lime-600 to-yellow-600 text-white px-6 py-4 flex justify-between items-center">
         <div className="absolute -top-8 -left-8 w-64 h-64 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-gradient-to-br from-yellow-300 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-800 via-lime-700 to-yellow-700">Pharmacist Portal</h1>
+        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-800 via-lime-700 to-yellow-700">Pharmacist Portal - PharmacistDashboard</h1>
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-slate-700">{user?.profile?.firstName} {user?.profile?.lastName}</span>
           <button onClick={handleLogout} className="text-sm text-red-600 font-semibold">Logout</button>

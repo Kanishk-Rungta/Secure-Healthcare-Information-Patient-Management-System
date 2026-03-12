@@ -60,13 +60,14 @@ ensureJwtSecrets();
 app.set('trust proxy', 1);
 
 // Security middleware
+app.use(requestId);
+
+// Request logging - MUST BE EARLY
+app.use(requestLogger);
+
 app.use(helmetConfig);
 app.use(cors(corsConfig));
 app.use(securityHeaders);
-app.use(requestId);
-
-// Request logging
-app.use(requestLogger);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

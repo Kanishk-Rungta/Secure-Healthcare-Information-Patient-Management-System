@@ -479,8 +479,59 @@ All files are now in your repo and ready to use!
 - Vercel Action: https://github.com/amondnet/vercel-action
 - GitHub Secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets
 
+## File Structure
+
+```
+.github/
+└── workflows/
+    ├── backend-ci.yml     ← Backend testing
+    └── frontend-ci.yml    ← Frontend testing
+```
+
+2 simple files, no complexity!
+
 ---
 
-**Status**: ✅ Ready to Use
-**Version**: 1.0.0
-**Last Updated**: March 2026
+## What Happens on Each Event
+
+| Event                | Workflows                | What Happens                   |
+| -------------------- | ------------------------ | ------------------------------ |
+| Push to `main`       | Backend CI + Frontend CI | Tests run, results shown       |
+| Push to `develop`    | Backend CI + Frontend CI | Tests run, results shown       |
+| Create PR            | Backend CI + Frontend CI | Tests run, can't merge if fail |
+| Merge PR             | (no CI workflow)         | Manual deploy when ready       |
+| Push to other branch | None                     | Nothing happens                |
+
+---
+
+## Quick Checklist
+
+- [ ] Workflow files pushed to GitHub
+- [ ] Go to GitHub Actions tab
+- [ ] See workflows running
+- [ ] Both CI workflows show ✅ green checkmarks
+- [ ] Create test PR to verify checks work
+- [ ] Merge when checks pass
+- [ ] Deploy manually when ready
+
+---
+
+## Summary
+
+✅ **You get:**
+
+- Automatic testing on every PR
+- Code quality checks (lint)
+- Build verification
+- Protected main branch (can't merge broken code)
+- NO tokens needed
+- NO complex setup
+- Simple YAML files
+
+❌ **You don't get:**
+
+- Automatic deployment (but simple to do manually)
+- Webhook management
+- Secret management
+
+**Perfect for simple CI testing!**

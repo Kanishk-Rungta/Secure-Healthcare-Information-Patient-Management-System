@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}`;
+
 const LabTechnicianDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -29,7 +31,7 @@ const LabTechnicianDashboard = () => {
   const fetchConsentedPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/consent/my-consents', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/my-consents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -64,7 +66,7 @@ const LabTechnicianDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${selectedPatient._id}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${selectedPatient._id}/medical-records`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

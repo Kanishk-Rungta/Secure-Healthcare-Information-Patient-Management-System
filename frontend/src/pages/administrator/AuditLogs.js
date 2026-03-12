@@ -26,7 +26,7 @@ const AuditLogs = () => {
         limit: 20,
         ...filters
       });
-      const response = await fetch(`http://localhost:5000/api/admin/logs?${queryParams}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/admin/logs?${queryParams}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -43,7 +43,7 @@ const PatientDashboard = () => {
   const fetchDoctors = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/doctor?limit=50`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/doctor?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ const PatientDashboard = () => {
   const getPatientId = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/my-profile`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/my-profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -86,7 +86,7 @@ const PatientDashboard = () => {
   const fetchComplaints = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/receptionist/complaints`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/receptionist/complaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ const PatientDashboard = () => {
   const fetchLabTechnicians = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/lab_technician?limit=50`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/lab_technician?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -122,7 +122,7 @@ const PatientDashboard = () => {
   const fetchPharmacists = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/users/pharmacist?limit=50`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/users/pharmacist?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ const PatientDashboard = () => {
   const fetchMedicalRecords = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${pId || patientId}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${pId || patientId}/medical-records`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ const PatientDashboard = () => {
   const fetchConsents = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/consent/patients/${pId || patientId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/patients/${pId || patientId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ const PatientDashboard = () => {
   const fetchAssignedDoctors = async (pId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/assignments/patient/${pId || patientId}/doctors`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/assignments/patient/${pId || patientId}/doctors`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -211,7 +211,7 @@ const PatientDashboard = () => {
     try {
       const token = localStorage.getItem('accessToken');
 
-      const response = await fetch(`http://localhost:5000/api/consent/patients/${patientId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/patients/${patientId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -244,7 +244,7 @@ const PatientDashboard = () => {
   const revokeConsent = async (consentId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/consent/${consentId}/revoke`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/${consentId}/revoke`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

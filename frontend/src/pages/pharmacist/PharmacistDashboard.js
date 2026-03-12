@@ -30,7 +30,7 @@ const PharmacistDashboard = () => {
   const fetchConsentedPatients = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/consent/my-consents', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/consent/my-consents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -60,7 +60,7 @@ const PharmacistDashboard = () => {
   const fetchPatientPrescriptions = async (patientId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${patientId}/medical-records?recordType=prescription`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${patientId}/medical-records?recordType=prescription`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -89,7 +89,7 @@ const PharmacistDashboard = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/patients/${selectedPatient._id}/medical-records`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/patients/${selectedPatient._id}/medical-records`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

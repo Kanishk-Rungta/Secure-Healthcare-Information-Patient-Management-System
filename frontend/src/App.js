@@ -42,7 +42,21 @@ import NotFound from './pages/NotFound';
 // Styles
 import './styles/globals.css';
 
+/**
+ * Main Application Component
+ * 
+ * This component acts as the root router for the Secure Healthcare Information System.
+ * It maps various URL paths to their corresponding page components, wrapping them
+ * in the main Layout component where appropriate. Access control and protected routes
+ * are handled within individual components or specific wrapper components.
+ * 
+ * Routes are logically grouped by user roles and specific feature modules.
+ * 
+ * @returns {React.ReactElement} The complete application router tree
+ */
 function App() {
+  // Developer Note: If adding a new role, remember to register its base dashboard route
+  // and any subsidiary pages following the existing pattern below.
   return (
     <Router>
       <div className="App">
@@ -55,7 +69,11 @@ function App() {
           {/* Protected Routes */}
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
 
-          {/* Role-specific Dashboards */}
+          {/* 
+            Role-specific Dashboards 
+            These act as the primary landing page upon login based on the user's role.
+            They provide aggregate data and quick actions specific to the professional's scope.
+          */}
           <Route path="/patient" element={<Layout><PatientDashboard /></Layout>} />
           <Route path="/doctor" element={<Layout><DoctorDashboard /></Layout>} />
           <Route path="/receptionist" element={<Layout><ReceptionistDashboard /></Layout>} />

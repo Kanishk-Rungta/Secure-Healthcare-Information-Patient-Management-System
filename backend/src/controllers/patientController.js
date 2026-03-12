@@ -10,7 +10,15 @@ const { v4: uuidv4 } = require('uuid');
  */
 
 class PatientController {
-  // Get patient profile (with consent validation)
+  /**
+   * Retrieves the comprehensive profile of a specific patient.
+   * This includes demographic data, userId links, and requires proper consent validation.
+   * Logs access attempts for auditing purposes.
+   * 
+   * @param {Object} req - The Express request object containing patientId in params
+   * @param {Object} res - The Express response object to send the profile data
+   * @returns {Promise<Object>} JSON response containing patient data or error
+   */
   static async getPatientProfile(req, res) {
     try {
       const { patientId } = req.params;
@@ -75,7 +83,14 @@ class PatientController {
     }
   }
 
-  // Get own patient profile
+  /**
+   * Retrieves the profile of the currently fully authenticated patient.
+   * Used by patients accessing their own dashboard where the ID matches the user token.
+   *
+   * @param {Object} req - The Express request object
+   * @param {Object} res - The Express response object
+   * @returns {Promise<Object>} JSON response containing their own patient data
+   */
   static async getMyPatientProfile(req, res) {
     try {
       const userId = req.user._id;
@@ -104,7 +119,15 @@ class PatientController {
     }
   }
 
-  // Update patient demographics
+  /**
+   * Updates specific demographic details of a targeted patient.
+   * Requires appropriate role permissions or self-access.
+   * Captures changes in an audit log to ensure HIPAA/GDPR compliance.
+   *
+   * @param {Object} req - The Express request object with updated data in body
+   * @param {Object} res - The Express response object
+   * @returns {Promise<Object>} JSON response with the updated patient document
+   */
   static async updateDemographics(req, res) {
     try {
       const { patientId } = req.params;

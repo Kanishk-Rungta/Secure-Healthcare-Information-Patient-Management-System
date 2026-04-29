@@ -676,6 +676,7 @@ const Register = () => {
             )}
           </form>
         </div>
+        </div>
 
         <div className="mt-6 flex items-center justify-center gap-3 text-xs text-gray-500">
           <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-full border border-blue-100">
